@@ -1,0 +1,67 @@
+# 新月杀
+
+接着，让我们再来看看与神杀类似的新月杀，其相关的编译和调试法都在[官方文档](https://fkbook-all-in-one.readthedocs.io/zh-cn/latest/develop/index.html)中，此时其变成了一个QT项目。由于新月杀和神杀的框架基本相同，技术栈为C++ Qt和lua，使用swig进行接口绑定，游戏采用C/S运行架构，所以对于重复的内容就不再讨论了，我们主要来说说两者的区别。
+
+## 内核精简化
+
+其含义就是尽可能的减少C++ Qt代码，将其视作一种类似驱动的东西。在新月杀中，主要有两种迁移，一种是原生接口lua化，其位于`lua/`文件夹中(与`packages/`中的卡牌武将包不是一个含义)，另一种是UI界面qml化，其位于`Fk/`文件夹中。
+
+我们先来讲讲第一种情形，在core、client、server、network等几个核心组件中，保留了Player、Client、Server、Room等基本类，因为这些类都需要与系统的Socket通信进行交互，需要调用系统的API，而对于游戏过程只是把线程保留了下了，游戏机制则全部被分离了。同样地，新月杀也通过swig(位于`sec/swig/`中)将核心API与lua进行绑定，但更细致的实现过程，全部都在lua中实现和执行。
+
+在Qt中，QML是一种强大的UI标记语言，再与QSS样式语言(新月杀并未使用)配合就可以做出十分复杂的界面，而且其还可以通过内嵌js代码来添加逻辑能力，总之就是非常的方便而强大。为此，我们来稍微看看，QML是如何加载并变成界面的，即看一下`main`函数中的内容。
+
+- 如它注释的那样，开始用于初始化各种信息，并设置了一个log功能来捕捉日志，然后是参数解析，版本、帮助、服务器直接过了，来看看我们的QApplication；
+- 程序启动后先进入欢迎界面，并启动我们的qml加载引擎QQmlApplicationEngine，后面是加载翻译文本(由`lang/`下文件生成)，个人觉得中文其实够了，英语就是一堆拼音，属实没必要；
+- 再接下来就是QML相关了，主要是向QML注入了几个全局变量，`FkVersion`和`SysLocale`是两个字符常量，分别代表版本和语言，`Backend`是新月杀自己写的一个QML后端类(定义于`src/ui/qmlbackend.cpp`)，用于管理QML并提供相关工具函数，`ModBackend`用于扩展管理(定义于`src/ui/mod.cpp`)，提供添加删除保存等操作，`Pacman`为包管理工具(定义于`src/core/packman.cpp`)，用于与服务器同步扩展使用，`Debugging`为一个bool值表示是否为调试模式，`OS`为一个字符串表示程序所在的操作系统，`AppPath`表示当前程序所在的目录；
+- 接下来设置游戏根目录为搜索路径后，加载`Fk/main.qml`界面文件，后面一堆无需管的东西，看注释就行，程序就开始运行了。
+
+看来通过QML实现界面确实是简单明了啊。
+
+## 单机启动
+
+在主要界面文件`Fk/main.qml`中，其显然并非单纯的显示主界面，除导入系统库外，其额外导入了js库`Logic.js`用于保存一系列的回调函数，还有每一个页面`Fk.Pages`，其定义于相应的文件夹下。内部的Item为主界面的承载体，Shortcut用于全屏快捷键的操作，在window下为“F11”键。`Loader`和Item差不多，只不过其可以设置source来直接载入其它的qml，此处用于那个菜单界面前的那个预加载动画界面对应`Fk/Splash.qml`，`Component.onCompleted`表示当前qml加载完后执行的函数。`MessageDialog`为一个退出对话框，当触发窗口的关闭事件时，回调用`onClosing`对应的函数，它就会来显示这个退出对话框。最后几个属于被动调用函数，没啥好说的。
+
+在组件加载完后，mainStack(`Item.StackView`为一层一层的视图控件)会推入控件init(`Item.Component.Init`为自定义控件`Fk/Pages/Init.qml`的载体，所有Pages都是如此)。这个Init控件就是我们的主菜单界面，只不过马上就会被覆盖而没看见而已，它的另一个作用就是执行了`config.loadConf()`将设置载入。接着判断`config.firstRun`(`Item.Config`定义于`Config.qml`，用于加载、保存设置信息)看是否先加载教程界面，然后对于非Debug版本就载入我们之前说的Splash进行欢迎，其自带消失事件，点了就会回到Init主界面。最后是等待时的提示数据加载(游戏根目录的`waiting_tips.txt`)，它被保存到了Window的成员属性tipList中。
+
+在菜单界面中，当我们点击“单机启动”时，对应按钮的`onClicked`被触发，其过程主要是更新`config`并设置主要窗口为busy状态(其会隐藏mainStack控件，并显示`Item.BusyIndicator、Item.Text`等组成的加载界面)，最后调用后台的`startServer`启动服务器和`joinServer`加入服务器。启动过程就是创建Server并监听，加入服务器就是创建Client并连接的过程，与神杀大差不差，不看了，当然新月杀丰富了房间列表等UI界面，功能更富足了一些。另外我们还要注意，创建Client是，会给予QML两个新的变量`ClientInstance`(ClientPlayer的实例化)和`Self`(Client的实例化)，并会创建lua环境执行两个lua脚本`lua/freekill.lua`和`lua/client/client.lua`。
+
+两个变量不用看，主要看两个脚本，官方给了十分细致的注释，主要的目的是为代码的全面lua提供各式各样的环境。在客户端中，所有收到的信息均转交给路由器Router(定义于`src/network/router.cpp`)的handlePacket进行处理，消息类型同样为NOTIFICATION、REQUEST和REPLY三种，当客户端连入服务器后，主要收到的是NOTIFICATION型的`NetworkDelayTest`，当目的地为客户端时，就会通过`calllua`调用lua相关函数进行处理，它会调用Client下的callback(LuaFunction)，而这个callback会在lua中(位于`lua/client/client.lua`的`Client:initialize()`函数中)被初始。
+
+信息处理函数主要有两步，先是查看lua环境的`fk.client_callback`是否有这个指令，有的话就直接执行，否则调用Client的`notifyUI`来让UI进行相关处理，同样在初始化中，它被指向了`fk.Backend:notifyUI()`函数，这个函数在C++ QT环境中有被申明(位于`src/swig/client.i`中)，此处只是将其定义了出来。而这个函数的作用在于，其在`main.qml`中被绑定到了组件`Item.Connections`(对应处理函数为`onNotifyUI`)上，其进行过滤以后，转交给`handleMessage`函数进行处理，而内容就是执行`Window.callbacks`中的函数(定义于`Fk/Logic.js`中)。
+
+在回调中，我们看到NetworkDelayTest进行解密以后，主要调用了`Backend.replyDelayTest`，回到C++环境中，其进行了一把数据的md5校验，并调用`notifyServer`向服务器发送`SetUp`指令。服务器的初始处理位置是C++下Server的`processRequest`函数，而其只处理Setup函数，而过程还有点小繁琐，其中与加密通信相关的事我们就直接过了。
+
+- 首先调用`checkClientVersion`检测客户端的版本，其指的是游戏程序的版本，并不是lua层面的版本(两种版本的区别在于游戏的理念，“武将卡牌等内容全部通过拓展包来添加”，而lua版本指的就是扩展的内容)；
+- 接着从数据库中进行UUID检索，查看其是否为被ban用户，是的话就滚蛋吧。数据库存放于`server/users.db`中，其初始化的SQL语句定义于`server/init.sql`，而这个uuid是系统唯一标识，与设备绑定，虽然在权限足够时还是可以修改的就是了，但唯一性已经很高了；
+- 然后是`handleNameAndPassword`函数处理用户名和密码，其第一步是进行资源的md5校验，没通过的话，就提醒客户端执行`UpdatePackage`来强制同步扩展数据，此时服务器调用Pacman的`getPackSummary`函数作为参数，其查询了`packages/packages.db`这个数据库的信息，主要包含名称、url(下载地址)和hash(校验值)等信息，下载同步由用户自行进行；
+- 后面是用户名检测和禁用词检测，名字没问题且数据库没注册数据的话就启动建号操作，对于已经注册过的用户名，会依次进行是否被ban检测、密码是否正确检测和进房前准备(比如官方注解的顶号机制)；
+- 顺利通过各种检测后，就会开始用户升级了，这和神杀基本类似，此时按照官方的说明就是我们进入了一个大厅房间`lobby()`(为Server下的一个Room实例化，Id为0是初始的房间)，此时监听事件转化为`Room::handlePacket`进行处理；
+    * 首先其会看是否为两种特殊指令，`CHAT`对应聊天界面，有着一系列相关操作，不想看了；
+	* 而`PushRequest`只在非大厅中适用，其用于将指令送入房间线程进行队列处理，过程全在lua中(`lua/server/room.lua`的`doRequest`)，与游戏过程相关，自己看吧；
+	* 最后其根据是否为大厅，而分别调用`lobby_actions`或`room_actions`(此处用于房间等待中的)下指令指向的函数。
+- 各种通知别的玩家的东西可以直接无视，此时服务器会先调用`setupPlayer`让玩家自己设置一下，主要是两个NOTIFICATION型指令`Setup`(此函数在lua中，用来更新客户端自己的Client的信息)和`SetServerSettings`(此函数在QML中，用来同步服务器的几个设置)；
+- 最后`lobby()->addPlayer`让玩家进入大厅，其过程在大厅和房间之间是共用的。比如满员判定，游戏开始判定等，大厅理所应当不会游戏开始，而旁观则是另一类函数；
+    * 如果非大厅，则通知每个玩家执行`AddPlayer`来更新玩家数据。接着就是玩家加入房间的玩家列表，玩家指向房间的互动操作；
+	* 进房间比较复杂，它会让玩家执行进房`EnterRoom`、添加玩家`AddPlayer`、更新游戏数据`UpdateGameData`等各项操作；
+	* 而进入大厅只执行`EnterLobby`，其在lua中有，不过只是调用`notifyUI`，也就是说最后还是执行QML中的内容。过程无非就是进行各种设置，取消好久以前的busy状态，并把`Fk/Pages/Lobby.qml`界面给推进主页面堆mainStack。
+
+至此，单机启动结束了。
+
+## 交互体系
+
+由前面我们知道，新月杀有着一个极为复杂的交互体系`QML<->C++ Qt<->lua`，但我们完全不必害怕，任何多语言编程都有一个核心，就是紧扣共通的低层接口，即在C++ Qt中的控制了。对于QML，其对应QQmlApplicationEngine创建的对象，对于lua，其对应CreateLuaState函数得到的指针，在C++层面上，数据管理主要通过这两个对象完成。
+
+一个便利的点是QML和lua本质都是脚本语言，执行一遍以后，无非就是加入了一些全局变量、函数或者执行点什么。所以我们的第一步就是把握全局变量和函数有哪些，在`QML<->C++`交互上，单纯函数的概念并不存在，所有函数都在全局变量的闭包之中，所以我们视函数为一种特殊的数据类型；在QML中，一种方式是通过在同目录下新建文件`Name.qml`来添加，另一种方式是在`qmldir`中把同目录下的js脚本封装进一个全局变量中；在C++中，主要通过`rootContext()->setContextProperty`函数实现把C++中的对象转化进QML的全局变量中。
+
+在`Lua<->C++`的交互上，就有那么一点复杂了，先要将C++的函数或变量引入lua，原生是十分复杂的，但好在我们有了swig工具，其作用就是通过一种特定的语言，简化绑定的过程，但真正的实现也是生成后的C++以原生的方法做到的；想要C++去调用lua的函数，同样有一套复杂的过程，比较可惜的是，swig没办法反向操作。但幸运的是，这种情形是比较少的，因为上层听从下层一直是开发的基本原则，不过新月杀有一步违反了这个原则，就是客户端收到服务器发送的执行指令时，其会把存在lua中的回调函数，下放到C++来执行。我想可能的原因是作为脚本语言的lua难以实现监听等待的动作，并非如此哦，实际上在服务器的房间交互中，就使用了lua的协程来处理玩家的`PushRequest`指令，可能是官方嫌麻烦就没用再这样做了。
+
+交互体系其实也没什么好讲的了，lua和QML是不能直接进行交互的，都必需以C++作为中介，如果觉得数据传来传去很麻烦的话，一个简便的方法就是像官方的`Backend`一样，其本质是一个C++对象，但同时被绑定到了lua和QML两个环境中，因此无论哪边调用Backend，都会引起一定程度上的联动。在新月杀中，主要是承担逻辑部分的lua通知QML更新界面(`NotifyUI`)，而QML界面主要通过`lcall`(底层`Backend.callLuaFunction`)来执行lua的函数，从而在界面中完成某些lua方面的逻辑。
+
+好了好了，就说这么多吧，并最后提一嘴，角色、卡牌和模式全都在`packages/`中作为扩展存在。
+
+<div align="center">
+    <img src="./n_0t.jpg" alt="图片1" width="20%" style="max-width: 250px;">
+    <img src="./n_emoprincess.jpg" alt="图片2" width="20%" style="max-width: 250px;">
+    <img src="./n_hospair.jpg" alt="图片3" width="20%" style="max-width: 250px;">
+	<img src="./n_ralph.jpg" alt="图片4" width="20%" style="max-width: 250px;">
+</div>

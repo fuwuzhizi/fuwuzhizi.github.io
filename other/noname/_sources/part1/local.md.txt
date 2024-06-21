@@ -1,0 +1,37 @@
+# 局部变量
+
+除了几个全局变量以外，我们还需要了解在函数之间传递的几个重要局部变量。
+
+## event
+
+所谓event，即GameEvent类的实例化，也是我们事件系统触发的核心对象。
+
+`event.source`表示事件触发的来源，比如伤害的来源，其为一个player对象。
+
+`event.player`表示事件触发的玩家，比如受到伤害的玩家，其为一个player对象。
+
+`event.players`表示事件触发的玩家群，比如多重拼点，其为一个player数组。
+
+`event.target`表示事件触发的目标，比如对目标使用牌，其为一个player对象。
+
+`event.targets`表示事件触发的目标群，比如群体牌，其为一个player数组。
+
+`event.card`表示事件触发的卡牌，比如造成伤害的牌，其为一个card对象。
+
+`event.cards`表示事件触发的卡牌组，比如多张牌当某张牌使用，其为一个card数组。
+
+`event.skill`表示事件触发的技能，比如视为技产生的牌，其为一个字符串。
+
+`event.forced`表示事件是否具有强制性。
+
+## player
+
+所谓player，即表示为玩家对象，定义于`noname/library/element/player.js`，继承自HTMLDivElement对象，并内置一系列的方法。其有一系列的属性和方法，可以直接望文生义，所以自己看着办吧。
+
+## card
+
+所谓card，即表示为卡牌对象，定义于`noname/library/element/card.js`，继承自HTMLDivElement对象，并内置一系列的方法。其有一系列的属性和方法，可以直接望文生义，所以自己看着办吧。
+
+在Card之上还有一种VCard，即虚拟卡，通常用于“视为XX对XX使用一张XX”，其特点是不具备实体卡。
+
+技能skill并不具备一个类对象，而是以字符串作为索引而存在，通常可以通过lib.skill来进行查询使用。

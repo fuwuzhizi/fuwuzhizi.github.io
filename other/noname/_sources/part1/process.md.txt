@@ -1,0 +1,33 @@
+# 运行流程
+
+我们以浏览器端的游戏来说明无名杀的运行流程，其它客户端本质上也是相同的。
+
+## 启动
+
+当我们点击`noname-server.exe`时，其会在本地的8089端口启动一个服务器，此时我们在浏览器打开游戏时，其先默认加载游戏目录下的`index.html`作为页面文件。
+
+页面`index.html`并没有什么实际的内容，只是用于加载一系列的js脚本用的。其包括引入报错函数、根据不同客户端新增全局函数等，我们无需关心这些内容，而在外置脚本上主要执行game文件夹下的`update.js`、`config.js`、`package.js`、`game.js`这四个文件，前三个用于存放一系列的配置表，而`game.js`实际上就是一系列的检测工作，我们同样无需关心，只需知道在最后会运行`entry.js`。其同样套了一堆我们无需了解的东西，其关键步骤是调用了`boot()`函数，其来自`noname/init/index.js`，而这正是我们游戏的起始点。
+
+在此处一系列与游戏相关的变量将会被初始化，后面我们将会对其进行详细的解析。我们需要知道，无名杀使用网页运行，因此其不具备本地读写的能力，而我们的设置之所以可以保留，是因为使用了localStorage和IndexedDB技术，将数据存储在了浏览器上，具体可以查看`loadConfig()`函数的内容。中间一大坨都不用管，最后调用了`onload()`函数，其来自同目录下的`onload.js`，此处才真正开始渲染页面，并设置监听事件，过程十分机械没什么好说的。当我们点击按钮时，会调用`lib.init.js(lib.assetURL + "mode", lib.config.mode, proceed);`这句代码。
+
+它会自适应地根据环境来调整文件路径，我们的环境下在选择身份场时会返回`mode/identity.js`文件，将其置入html并运行，整个文件只执行了一个game.import，传入了大量参数，并返回一个特大的object，最后再执行proceed函数。也就是说游戏运行的过程以一个object的形式进行表现，proceed位于之前的`onload()`中，并嵌套调用proceed2，传递的运行过程被存储在`lib.imported.mode`中。别晕，启动已经结束了，接下来就是游戏的过程了。
+
+## 过程
+
+proceed2用于处理所有模式的游戏过程，而游戏的具体过程则存储在game.import导入时的巨大object中，我们先来说明一下整体的过程。首先它会一次性把所有的角色包和卡牌包载入，然后就是一通转移，将巨大的game.import中诸如game、ai、ui等元素覆盖到本地中，接着就是去除没使用的角色和卡牌，十分繁琐没啥好看的，但有一点值得注意，就是其会根据你是否为联机模式`connect.js`，修改`_status.connectMode`变量，而这正是在各种代码编写时区分联机模式的重要依据，也为无名杀拉跨的联机模式埋下了祸根。然后清除lib.imported之类的缓存数据，如果非联机模式，则将lib.extensions中的扩展导入到game中(主要为角色和卡牌)，准备工作结束。
+
+接下来进入游戏的生命周期，`startBefore`(启动前准备)->`ui.create.arena()`(绘制UI界面)->`loop`(游戏运行循环)->`start`(游戏启动)。其中只有startBefore和start，是由game.import传入的，并保存在lib.init中。在整个游戏的运行过程中，主要采用event机制，而game.loop实际就是一个不断接受event并处理的过程。另外，start是作为一个事件在loop被执行的。
+
+## 事件
+
+在无名杀中，event机制贯穿整个游戏，其定义在`noname/library/element/gameEvent.js`中，其在全局中只有一个，在`boot()`中通过`lib.element.GameEvent.initialGameEvent();`创建，并保存在`_status.event`中。而在proceed2中，我们创建了第一个事件`start`表示游戏开始，并在loop中进行执行。除start以外，所有的事件均要通过`event.trigger()`来触发。
+
+在`trigger()`中，一堆前置的内容没啥好看的，好戏主要集中在后面的`do while()`中，其会从第一个玩家开始依次遍历技能中的trigger相关的技能，并执行相应content的内容，这就是**触发技**的由来。
+
+事件系列中的第一个是`gameStart`，在start事件的执行函数中被触发，其根据模式的不同而有所不同。而其它的事件则是在两个函数中被触发，其分别是`game.gameDraw()`和`game.phaseLoop()`(不同模式的循环有所不同)。运行过程就是创建一个相应的事件，并将`library/element/content.js`中相应的函数扔进去作为执行函数，这些事件通过`game.createEvent`触发并不会执行技能相应的事件，只是单纯的执行函数。gameDraw表示玩家初始摸牌并绘制的函数，里面也包含一些远古代码，我们就别管了，总之不重要。在phaseLoop中，第一步是设置座位号(例如在身份场中，从主公开始逆时针由1加到8)，第二步的for循环与乱斗相关以后再讲，后面则是执行第一个玩家的回合，第三步则是寻找下一个玩家并回到第二步，以此达成一个回合一个回合地无限轮流下去。
+
+执行回合`player.phase()`定义在`library/element/player.js`，同样的先是创建一个phase事件，然后转接执行，后面的一段开始定义roundStart，即不存在一轮开始，则在一个玩家回合开始是定义一轮从哪里开始(不要问我为什么这样，代码就是这样)。接着在`content.js`中看回合的具体过程，先触发的事件是`phaseBefore`(具体原因看官方源码解释)，接着就是触发事件`roundStart`，中间一坨都无所谓，总之看到当前的玩家等于我们之前的`_status.roundStart`就开始执行一轮的相关内容。然后又是一堆无所谓的东西，并接连触发两个事件`phaseBeforeStart`和`phaseBeforeEnd`，至此回合前的事件就结束了。
+
+接下来进行翻面检测，如果玩家处于翻面状态，则取消当前的回合事件并翻回来。如果没翻面的话，游戏就会报一个日志`XX的的回合开始`，并接连触发事件`phaseBeginStart`和`phaseBegin`，这样回合终于开始了。接下来使用了goto这种恶心的玩意，别管它，总之就是接连触发了函数`phaseZhunbei`、`phaseJudge`、`phaseDraw`、`phaseUse`、`phaseDiscard`、`phaseJieshu`，也就是我们说的准备、判定、摸牌、出牌、弃牌、结束六个阶段，当然每个阶段之间还插入了一个`phaseChange`事件。当各阶段结束以后，就相继触发`phaseEnd`和`phaseAfter`，然后回合就结束了。
+
+剩下的事件就没什么好讲的了，盯住`event.trigger()`即可，比如在出牌阶段中，就有着`phaseUseBefore`、`phaseUseBegin`、`phaseUseEnd`和`phaseUseAfter`四个事件，而诸如`shaXX`之类杀相关事件则是写作卡牌杀的代码中，同样通过`event.trigger()`进行触发。

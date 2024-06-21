@@ -1,0 +1,26 @@
+.. noname-doc documentation master file, created by
+   sphinx-quickstart on Wed Apr 17 12:51:50 2024.
+   You can adapt this file completely to your liking, but it should at least
+   contain the root `toctree` directive.
+
+无名杀开发文档
+======================================
+请注意此文档并非面向无名杀使用者的，而是面向无名杀的维护贡献者和扩展编写者。由于我并非无名杀的开发者，因此本文档的内容，均为我通过阅读源码所得，所以出现错误时，还请指出并修改。
+
+此文档主要有两大部分内容，第一部分用于解析无名杀的运行机制，及游戏内部各变量的含义，类似于API文档；第二部分用于指导扩展的编写。
+
+.. toctree::
+   :hidden:
+   
+   quickstart.md
+
+.. toctree::
+   :caption: 游戏运行原理
+   
+   part1/offline-index.md
+   part1/online-index.md
+
+.. toctree::
+   :caption: 扩展教程
+   
+   extension.md

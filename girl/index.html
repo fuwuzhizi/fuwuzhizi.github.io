@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>小萝莉</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <link rel="icon" href="/img/favicon.ico" />
+  <!-- 引入 Bootstrap -->
+  <link href="/css/bootstrap.min.css" rel="stylesheet" />
+  <script src="/js/bootstrap.bundle.min.js"></script>
+  <link href="/css/jquery-ui.min.css" rel="stylesheet" />
+  <link href="/assets/waifu.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+  <div id="navbar-placeholder" type="看板娘"></div>
+
+  <script src="/js/jquery-3.4.0.min.js"></script>
+  <script src="/js/jquery-ui.min.js"></script>
+
+  <div class="waifu">
+    <div class="waifu-tips"></div>
+    <canvas id="live2d" class="live2d"></canvas>
+  </div>
+  <script src="/assets/waifu-tips.js"></script>
+  <script src="/assets/live2d.js"></script>
+  <script type="text/javascript">
+    live2d_settings['waifuEdgeSide'] = 'right:30'
+    live2d_settings['waifuSize'] = '280x340';
+    live2d_settings['waifuDraggable'] = 'axis-x';
+    live2d_settings['waifuMinWidth'] = '280px';
+    initModel("/assets/waifu-tips.json");
+  </script>
+
+  <script color="0,0,0" opacity="0.5" count="99" src="https://cdn.bootcss.com/canvas-nest.js/1.0.1/canvas-nest.js"
+    type="text/javascript" charset="utf-8"></script>
+
+  <script src="/js/autoload.js"></script>
+</body>
+
+</html>

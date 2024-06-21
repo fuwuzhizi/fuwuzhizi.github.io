@@ -1,0 +1,323 @@
+<!doctype html>
+<html class="no-js" lang="zh-cn" data-content_root="../">
+  <head><meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1"/>
+    <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="index" title="索引" href="../genindex.html" /><link rel="search" title="搜索" href="../search.html" /><link rel="next" title="C/S架构" href="CSFramework.html" /><link rel="prev" title="神杀-v2" href="index.html" />
+
+    <!-- Generated with Sphinx 7.2.6 and Furo 2024.01.29 -->
+        <title>运行流程 - QT系杀文档 文档</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=135e06be" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/furo-extensions.css?v=36a5483c" />
+    
+    
+
+
+<style>
+  body {
+    --color-code-background: #f8f8f8;
+  --color-code-foreground: black;
+  
+  }
+  @media not print {
+    body[data-theme="dark"] {
+      --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+    }
+    @media (prefers-color-scheme: dark) {
+      body:not([data-theme="light"]) {
+        --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+      }
+    }
+  }
+</style></head>
+  <body>
+    
+    <script>
+      document.body.dataset.theme = localStorage.getItem("theme") || "auto";
+    </script>
+    
+
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+  <symbol id="svg-toc" viewBox="0 0 24 24">
+    <title>Contents</title>
+    <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 1024 1024">
+      <path d="M408 442h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8zm-8 204c0 4.4 3.6 8 8 8h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56zm504-486H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zm0 632H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zM115.4 518.9L271.7 642c5.8 4.6 14.4.5 14.4-6.9V388.9c0-7.4-8.5-11.5-14.4-6.9L115.4 505.1a8.74 8.74 0 0 0 0 13.8z"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-menu" viewBox="0 0 24 24">
+    <title>Menu</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-menu">
+      <line x1="3" y1="12" x2="21" y2="12"></line>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
+    <title>Expand</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-chevron-right">
+      <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+  </symbol>
+  <symbol id="svg-sun" viewBox="0 0 24 24">
+    <title>Light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="feather-sun">
+      <circle cx="12" cy="12" r="5"></circle>
+      <line x1="12" y1="1" x2="12" y2="3"></line>
+      <line x1="12" y1="21" x2="12" y2="23"></line>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+      <line x1="1" y1="12" x2="3" y2="12"></line>
+      <line x1="21" y1="12" x2="23" y2="12"></line>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon" viewBox="0 0 24 24">
+    <title>Dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-moon">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
+    </svg>
+  </symbol>
+  <symbol id="svg-sun-half" viewBox="0 0 24 24">
+    <title>Auto light/dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-shadow">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M13 12h5" />
+      <path d="M13 15h4" />
+      <path d="M13 18h1" />
+      <path d="M13 9h4" />
+      <path d="M13 6h1" />
+    </svg>
+  </symbol>
+</svg>
+
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation">
+<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc">
+<label class="overlay sidebar-overlay" for="__navigation">
+  <div class="visually-hidden">Hide navigation sidebar</div>
+</label>
+<label class="overlay toc-overlay" for="__toc">
+  <div class="visually-hidden">Hide table of contents sidebar</div>
+</label>
+
+
+
+<div class="page">
+  <header class="mobile-header">
+    <div class="header-left">
+      <label class="nav-overlay-icon" for="__navigation">
+        <div class="visually-hidden">Toggle site navigation sidebar</div>
+        <i class="icon"><svg><use href="#svg-menu"></use></svg></i>
+      </label>
+    </div>
+    <div class="header-center">
+      <a href="../index.html"><div class="brand">QT系杀文档  文档</div></a>
+    </div>
+    <div class="header-right">
+      <div class="theme-toggle-container theme-toggle-header">
+        <button class="theme-toggle">
+          <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+          <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
+          <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+          <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+        </button>
+      </div>
+      <label class="toc-overlay-icon toc-header-icon" for="__toc">
+        <div class="visually-hidden">Toggle table of contents sidebar</div>
+        <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+      </label>
+    </div>
+  </header>
+  <aside class="sidebar-drawer">
+    <div class="sidebar-container">
+      
+      <div class="sidebar-sticky"><a class="sidebar-brand" href="../index.html">
+  
+  
+  <span class="sidebar-brand-text">QT系杀文档  文档</span>
+  
+</a><form class="sidebar-search-container" method="get" action="../search.html" role="search">
+  <input class="sidebar-search" placeholder="搜索" name="q" aria-label="搜索">
+  <input type="hidden" name="check_keywords" value="yes">
+  <input type="hidden" name="area" value="default">
+</form>
+<div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
+  <ul>
+<li class="toctree-l1"><a class="reference internal" href="../quickstart.html">快速入门</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">游戏运行原理</span></p>
+<ul class="current">
+<li class="toctree-l1 current has-children"><a class="reference internal" href="index.html">神杀-v2</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of 神杀-v2</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
+<li class="toctree-l2 current current-page"><a class="current reference internal" href="#">运行流程</a></li>
+<li class="toctree-l2"><a class="reference internal" href="CSFramework.html">C/S架构</a></li>
+<li class="toctree-l2"><a class="reference internal" href="start.html">游戏开始</a></li>
+<li class="toctree-l2"><a class="reference internal" href="luaScript.html">lua脚本</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../part2/index.html">新月杀</a></li>
+</ul>
+
+</div>
+</div>
+
+      </div>
+      
+    </div>
+  </aside>
+  <div class="main">
+    <div class="content">
+      <div class="article-container">
+        <a href="#" class="back-to-top muted-link">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"></path>
+          </svg>
+          <span>Back to top</span>
+        </a>
+        <div class="content-icon-container">
+          
+<div class="theme-toggle-container theme-toggle-content">
+            <button class="theme-toggle">
+              <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+              <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
+              <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+              <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+            </button>
+          </div>
+          <label class="toc-overlay-icon toc-content-icon" for="__toc">
+            <div class="visually-hidden">Toggle table of contents sidebar</div>
+            <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+          </label>
+        </div>
+        <article role="main">
+          <section id="id1">
+<h1>运行流程<a class="headerlink" href="#id1" title="Link to this heading">#</a></h1>
+<p>理解原理的第一步是来梳理程序的运行流程，平台为Window10.64bit+VS2022。</p>
+<section id="id2">
+<h2>启动<a class="headerlink" href="#id2" title="Link to this heading">#</a></h2>
+<p>对于C++ Qt的程序，主流程集中于<code class="docutils literal notranslate"><span class="pre">src/main.cpp</span></code>的<code class="docutils literal notranslate"><span class="pre">int</span> <span class="pre">main(int</span> <span class="pre">argc,</span> <span class="pre">char</span> <span class="pre">*argv[])</span></code>函数中。首先的参数判定并没有什么用，最后还是得执行函数<code class="docutils literal notranslate"><span class="pre">new</span> <span class="pre">QApplication</span></code>来创建Qt程序；下一句<code class="docutils literal notranslate"><span class="pre">addLibraryPath</span></code>添加插件路径，但基本没有哪个版本有用到过；再下一句是读取文字信息，在配置多语言适配的情况下才会有qm文件，但感觉没啥必要。</p>
+<ul class="simple">
+<li><p>创建Engine对象Sanguosha(位于<code class="docutils literal notranslate"><span class="pre">src/core/engine.cpp</span></code>)，即三国杀的核心部分；</p></li>
+<li><p>调用Config对象的init方法来初始化各项设置，其在定义时就已经被创建了(代码位于<code class="docutils literal notranslate"><span class="pre">src/core/settings.cpp</span></code>和数据位于<code class="docutils literal notranslate"><span class="pre">config.ini</span></code>)。后部分是根据设置内容来改变程序字体，并加载游戏相关的禁表；</p></li>
+<li><p>接下来打开qss中的文件，即界面样式文件，并初始化音频库(神杀使用fmod)；</p></li>
+<li><p>最后创建窗口对象main_window(位于<code class="docutils literal notranslate"><span class="pre">src/dialog/mainwindow.cpp</span></code>)，并将其设为Sanguosha的父对象。</p></li>
+</ul>
+<p>由上面可知，神杀的核心应该全都在Sanguosha对象(Engine类的实例化)中，因此我们来好好研究一下。</p>
+</section>
+<section id="engine">
+<h2>Engine对象<a class="headerlink" href="#engine" title="Link to this heading">#</a></h2>
+<p>我们先来看构造方法<code class="docutils literal notranslate"><span class="pre">Engine::Engine(bool</span> <span class="pre">isManualMode)</span></code>，默认情况下<code class="docutils literal notranslate"><span class="pre">isManualMode=false</span></code>表示非教程模式。</p>
+<ul class="simple">
+<li><p>第一步是初始化lua环境，并加载脚本<code class="docutils literal notranslate"><span class="pre">lua/config.lua</span></code>，其相当于游戏lua环境的初始设置，然后读取转化表等配置到程序环境中，无需关注它(以后我们把lua执行的地方称为“lua环境”、把C++ Qt执行的地方称为“程序环境”)；</p></li>
+<li><p>第二步是读取lua环境中的<code class="docutils literal notranslate"><span class="pre">config.package_names</span></code>，即各种卡牌和武将包的名称，并通过addPackage添加到Sanguosha中。包的主类为Package(位于<code class="docutils literal notranslate"><span class="pre">src/package/package.cpp</span></code>中)，各类其它的包均是它的子类(位于<code class="docutils literal notranslate"><span class="pre">src/package/</span></code>下)。在包读取的函数中，前一步转化表等配置会进一步从包中添加，然后就是各种与包相关的技能和卡牌的添加，其中卡牌除了放到程序环境中，还会放到程序环境的lua相关变量中，在技能方面分为Skill和General两类，一类是隐性技能存在于装备卡牌全局等情况中，另一类就是角色拥有的显性技能；</p></li>
+<li><p>第三步是小场景和模式的加载，它们对应游戏中的最后两个选项。小型场景定义于<code class="docutils literal notranslate"><span class="pre">etc/customScenes/</span></code>下和<code class="docutils literal notranslate"><span class="pre">src/scenario/miniscenario.cpp</span></code>中，可以通过配置来简单实现，而剧情模式定义于<code class="docutils literal notranslate"><span class="pre">src/scenario/</span></code>下，拥有自己的代码规则，每个模式都是SceneRule的子类，并同属于游戏大框架的规则类GameRule的子类；</p></li>
+<li><p>第四步是加载脚本<code class="docutils literal notranslate"><span class="pre">lua/sanguosha.lua</span></code>，这个脚本做的事太多了，其顺带还会把同目录的<code class="docutils literal notranslate"><span class="pre">utilities.lua</span></code>和<code class="docutils literal notranslate"><span class="pre">sgs_ex.lua</span></code>一起加载；</p></li>
+<li><p>最后一步是各种具体模式的翻译和技能音频的初始化，没啥好看的。</p></li>
+</ul>
+<p>为了看我们如果进入到具体的游戏模式，还是稍微来看一下主菜单UI的内容吧。</p>
+</section>
+<section id="mainwindow">
+<h2>MainWindow对象<a class="headerlink" href="#mainwindow" title="Link to this heading">#</a></h2>
+<p>我们在文件中随时可以看到<code class="docutils literal notranslate"><span class="pre">tr(字符串)</span></code>，它实际上就是用于多语言翻译的，在编程阶段位于<code class="docutils literal notranslate"><span class="pre">builds/sanguosha.ts</span></code>中，编译以后生成相应的qm文件，因此在运行阶段位于<code class="docutils literal notranslate"><span class="pre">sanguosha.qm</span></code>中，其在之前的main函数中已经被读入过了。</p>
+<p>在MainWindow的构造函数中，大部分为弹窗对象的建立，其中的StartScene就是我们的初始菜单界面，后面紧跟的几个<code class="docutils literal notranslate"><span class="pre">ui-&gt;actionXXX</span></code>就是我们主界面上方的几个菜单选项，而这些控件定义于Qt的界面文件<code class="docutils literal notranslate"><span class="pre">src/dialog/mainwindow.ui</span></code>中。而中间几个按钮实际就是从上面菜单拿下来的，并让它们拥有相同的触发事件。</p>
+<p>游戏整体采用C/S架构，其中的启动服务器是我们开始游戏的方式，因此<code class="docutils literal notranslate"><span class="pre">on_actionStart_Server_triggered</span></code>函数对应点击事件。其会创建一个ServerDialog的窗口，即我们点入的配置窗口。接着根据accept_type的三种状态执行不同代码，0为“取消”则函数结束，-1为单机启动是我们的核心，1为启动服务器懒得搭理。</p>
+<p>反正无论如何只要不是取消，我们都会创建一个Server对象(定义于<code class="docutils literal notranslate"><span class="pre">src/server/server.cpp</span></code>)并监听设置<code class="docutils literal notranslate"><span class="pre">Config.ServerPort</span></code>的端口，服务器的底层API用的是Qt提供的Socket通信(主要使用TCP和UDP两类协议)，被封装于<code class="docutils literal notranslate"><span class="pre">src/util/nativesocket.cpp</span></code>中。</p>
+<p>我们考察单机启动，此时设置HostAddress为本地ip，并通过<code class="docutils literal notranslate"><span class="pre">startConnection</span></code>连入。在连入中，我们会创建一个Client对象(定义于<code class="docutils literal notranslate"><span class="pre">src/client/client.cpp</span></code>)来表示我们自己的客户端，在构造函数中有一堆指令设置先不管，再最后filename默认为空，此时自己定义一个socket来连接服务器，recorder供录像使用，最后进行连接。</p>
+<p>然后我们会执行<code class="docutils literal notranslate"><span class="pre">checkVersion()</span></code>进行所谓的版本检测，实际用途之一确实是比对服务端和客户端的版本是否相同，失败则进行信息反馈，成功则客户端执行<code class="docutils literal notranslate"><span class="pre">signup()</span></code>在服务器注册账号，并通过<code class="docutils literal notranslate"><span class="pre">enterRoom()</span></code>进入房间。进入房间后有一堆UI创建的代码，而关键的代码是<code class="docutils literal notranslate"><span class="pre">gotoScene(room_scene)</span></code>表示我们进入房间场景(其定义于<code class="docutils literal notranslate"><span class="pre">src/ui/roomscene.cpp</span></code>)。</p>
+<p>在又是一堆的UI建立代码中，我们只关注开始游戏的按钮，即<code class="docutils literal notranslate"><span class="pre">start_game</span></code>，其对应的事件为<code class="docutils literal notranslate"><span class="pre">fillRobots</span></code>，即加满机器人，而我们看到它就是通知服务器加人而已。实际上，游戏开始的事件在服务器中，当服务器检测到人已经满的时候，就会自动开始游戏，关于C/S架构更详细的交互过程，我们后面会更加详细地讨论，在UI方面就到此为止了。</p>
+</section>
+<section id="config">
+<h2>Config对象<a class="headerlink" href="#config" title="Link to this heading">#</a></h2>
+<p>游戏的Config为QSettings的子类，以键值方式存储设置内容，并将设置数据保存在游戏根目录的<code class="docutils literal notranslate"><span class="pre">config.ini</span></code>中，总体看来没什么好玩的，只是它属于游戏运行中一个重要的变量，所以就稍微提及一下。</p>
+</section>
+</section>
+
+        </article>
+      </div>
+      <footer>
+        
+        <div class="related-pages">
+          <a class="next-page" href="CSFramework.html">
+              <div class="page-info">
+                <div class="context">
+                  <span>Next</span>
+                </div>
+                <div class="title">C/S架构</div>
+              </div>
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+            </a>
+          <a class="prev-page" href="index.html">
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+              <div class="page-info">
+                <div class="context">
+                  <span>Previous</span>
+                </div>
+                
+                <div class="title">神杀-v2</div>
+                
+              </div>
+            </a>
+        </div>
+        <div class="bottom-of-page">
+          <div class="left-details">
+            <div class="copyright">
+                Copyright &#169; 2024, fuwuzhizi
+            </div>
+            Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
+            
+            <a href="https://github.com/pradyunsg/furo">Furo</a>
+            
+          </div>
+          <div class="right-details">
+            
+          </div>
+        </div>
+        
+      </footer>
+    </div>
+    <aside class="toc-drawer">
+      
+      
+      <div class="toc-sticky toc-scroll">
+        <div class="toc-title-container">
+          <span class="toc-title">
+            On this page
+          </span>
+        </div>
+        <div class="toc-tree-container">
+          <div class="toc-tree">
+            <ul>
+<li><a class="reference internal" href="#">运行流程</a><ul>
+<li><a class="reference internal" href="#id2">启动</a></li>
+<li><a class="reference internal" href="#engine">Engine对象</a></li>
+<li><a class="reference internal" href="#mainwindow">MainWindow对象</a></li>
+<li><a class="reference internal" href="#config">Config对象</a></li>
+</ul>
+</li>
+</ul>
+
+          </div>
+        </div>
+      </div>
+      
+      
+    </aside>
+  </div>
+</div><script src="../_static/documentation_options.js?v=ab3e9284"></script>
+    <script src="../_static/doctools.js?v=888ff710"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/scripts/furo.js?v=32e29ea5"></script>
+    <script src="../_static/translations.js?v=beaddf03"></script>
+    </body>
+</html>

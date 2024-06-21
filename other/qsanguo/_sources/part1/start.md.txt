@@ -1,0 +1,26 @@
+# 游戏开始
+
+由之前的讨论我们知道，游戏的起点是，服务器房间检测到人满以后，调用`start()`启动游戏，我们注意到Room继承于QThread是一个线程对象，因此实际的执行过程在`run()`函数中。
+
+- 首先，其会将所有玩家的互斥量进行封锁，目的是为了保证游戏的正常开始。然后执行`prepareForStart`进行复杂的准备工作，我们就考虑正常的8人身份场吧，其对应的表示标记为`08p`，此时调用最后一个else，如果配置中有`Config.RandomSeat`就打乱一下进房间时的座位；
+    * 然后执行`assignRoles`进行身份的分配，“主公->Z->lord”、“忠臣->C->loyalist”、“反贼->F->rebel”、“内奸->N->renegade”，其保存在roles中通过`qShuffle`函数打乱以后，依次分配给每个玩家；
+	* 最后执行`adjustSeats`调整座位编号，简单来讲就是，主公设为1后，依次加起来。而每次设置完后，都会调用`broadcastProperty`和`doBroadcastNotify`目的其实就是为了通知客户端，更新参数和座位，以便同步到显示画面上。
+- 后面的using_countdown和玩家没啥关系，然后再根据模式设置进行不同的内容，我们显然隶属于最后一个，第一步是调用`chooseGenerals`进行选将，就是主公先选，其它玩家后选。主公选将调用`askForGeneral`；
+    * 通过`tryPause()`测试暂停游戏，其不会暂停游戏，因为game_paused的初值为false，其目的是为了防止处于暂停游戏时而调用了暂停游戏的操作。否则它就会等待上一个暂停结束以后再继续执行；
+	* 后面的`notifyMoveFocus`用于通知主公该开始选将了，对应指令为`S_COMMAND_CHOOSE_GENERAL`，值得注意的是它被包装在了`S_COMMAND_MOVE_FOCUS`指令中，其在多个对象中用于多重等待；
+	* 函数`moveFocus`是一个拆包的过程，其将countdown的内容拆解出来，并触发信号focus_moved进行处理，这类信号与UI相关在roomscene中被绑定，其会取消其它的响应，通过`showProgressBar`将事件聚焦为countdown的内容，当然选将还没有开始，只是通知客户端将界面调整成适合选将；
+	* 接着是简化过程，比如将框为1时直接返回之类的，核心调用为`doRequest(player, S_COMMAND_CHOOSE_GENERAL, options, true);`，此时有大量准备工作，而发送的指令是`S_COMMAND_CHOOSE_GENERAL`参数为服务端给的武将，并且通过`getResult`等待结果；
+	* 当然其只是通过一个互斥bool值进行等待，而结果主要存储于玩家对象的`_m_clientResponse`中，这就是我们之前所说的收到REPLY型数据时，所修改的值。至于具体的选将过程就不看了，反正就是用客户端自己的UI选择，返回结果到`onPlayerChooseGeneral`函数，并以REPLY型数据发给服务器。
+- 对于其它玩家，直接调用`doBroadcastRequest`函数来发送`S_COMMAND_CHOOSE_GENERAL`指令来让它们选将，所能选的武将通过前面的`assignGeneralsForPlayers`函数获得，其中有大量不值一提的过滤过程，而双将模式会再执行一遍，最后提醒所有玩家更新武将数据；
+- 武将选择完毕以后，通过`startGame()`游戏似乎开始了。并非如此，在其中依旧有大量准备过程，首先它会将武将的数据同步到玩家的身上，并AI给调试好；然后调用`preparePlayers`进行技能性别等数据的设置和同步，并进行取出牌堆preparePlayers进行打乱洗牌；最后，通过`S_COMMAND_AVAILABLE_CARDS`进行牌堆同步后，再发送`S_COMMAND_GAME_START`指令，我们的游戏才终于开始了。
+
+在玩家的`startGame`函数中，会正式将房间注册到本地，清点玩家数量，并发出game_started的信号，当然这些都是用来提醒绘制UI的，以后对于这类信号我们就懒得讲了，反正不是很重要。嗯嗯，又是一堆，总之我们又创建了一个线程RoomThread，并将其成功启动后的信号发送到`game_start`信号上，这个信号什么都没绑定，所以流程全在RoomThread的`run`函数中。
+
+- 首先，又是些注册房间线程的操作，无所谓了，关键是创建了GameRule对象，其是TriggerSkill的子类，也就是所谓的触发技，其含义是游戏流程通过时机触发技来实现，`addTriggerSkill`就是这些触发技添加的过程，懒得看了；
+- 另外引擎自带的内容，暗将的操作等，全都被抽象成了触发技，游戏真正的启动过程在`try{}catch{}`块中。至于神杀中有哪些技能类型，可以查看`src/core/skill.h`，除触发技外，还有典型的视为技ViewAsSkill、免疫技ProhibitSkill、距离技DistanceSkill等等；
+- 然后`constructTriggerTable`将玩家的技能也添加进去，并判断是否要移除因武将导致的衍生卡，整个游戏采用Event事件机制来运行，所有的事件类型定义在`src/core/structs.h`的枚举类TriggerEvent中。游戏开始时触发`GameReady`事件，事件进行的过程就是调用每个触发技的trigger函数，例如GameReady就能触发GameRule的事件，其中摸牌、手气卡、同步手牌初始化信息全在这个事件中进行；
+- 最后调用`actionNormal`函数，里面是一个死循环，不断触发`TurnStart`即回合开始事件，并将下一个活着的玩家设置为下一个回合的对象，在第一轮中其会顺带触发一个`GameStart`事件，即游戏开始事件，看来无论哪一种三国杀，一轮的概念全都在回合里，我确实不是很能理解；
+- 在一个回合中，先是经过很复杂地过程后判断是否触发一轮开始的`RoundStart`事件，然后通过`faceUp`进行翻面判定，没问题后触发回合开始了事件`TurnStarted`，并调用玩家的`play`执行回合；
+- 一个回合的过程，哪个三国杀都一样，开始、判定、摸牌、出牌、弃牌、结束，而且连一轮开始RoundStart也一样地被扔到了回合之中，当然这里的RoundStart已经没了效果，被迁移到了上一步中。
+
+好了，对于游戏运行的解读终于结束了。

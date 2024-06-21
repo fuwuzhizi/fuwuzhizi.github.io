@@ -1,0 +1,17 @@
+# 神杀-v2
+
+实际上，我们可能需要先说明一下，[神杀-v2](https://gitee.com/L-T-Y/QSanguosha-v2)该如何编译。
+
+- 首先，我们需要知道神杀-v2是一个VS项目，而不是Qt项目，因此我们应该使用VisualStdio打开，而且为了让Qt与VS产生联动，我们还必需给Qt安装VS插件。
+- 接着，是swig工具，用于将lua与C++进行联动。
+- 最后，查看官方的README.vs2013即可知道在window下的编译流程了。
+- 如果出现报错，自己想办法，顺便用来提升除错能力。
+
+编译成功以后，一个重要好处是，我们可以在源码下断点，进行动态调试，从而更好理解程序运行的过程。
+
+```{toctree}
+process
+CSFramework
+start
+luaScript
+```

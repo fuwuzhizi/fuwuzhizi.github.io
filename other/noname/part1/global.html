@@ -1,0 +1,509 @@
+<!doctype html>
+<html class="no-js" lang="zh-CN" data-content_root="../">
+  <head><meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1"/>
+    <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="index" title="索引" href="../genindex.html" /><link rel="search" title="搜索" href="../search.html" /><link rel="next" title="局部变量" href="local.html" /><link rel="prev" title="运行流程" href="process.html" />
+
+    <!-- Generated with Sphinx 7.2.6 and Furo 2024.01.29 -->
+        <title>全局变量 - 无名杀开发 文档</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=135e06be" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/furo-extensions.css?v=36a5483c" />
+    
+    
+
+
+<style>
+  body {
+    --color-code-background: #f8f8f8;
+  --color-code-foreground: black;
+  
+  }
+  @media not print {
+    body[data-theme="dark"] {
+      --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+    }
+    @media (prefers-color-scheme: dark) {
+      body:not([data-theme="light"]) {
+        --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+      }
+    }
+  }
+</style></head>
+  <body>
+    
+    <script>
+      document.body.dataset.theme = localStorage.getItem("theme") || "auto";
+    </script>
+    
+
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+  <symbol id="svg-toc" viewBox="0 0 24 24">
+    <title>Contents</title>
+    <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 1024 1024">
+      <path d="M408 442h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8zm-8 204c0 4.4 3.6 8 8 8h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56zm504-486H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zm0 632H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zM115.4 518.9L271.7 642c5.8 4.6 14.4.5 14.4-6.9V388.9c0-7.4-8.5-11.5-14.4-6.9L115.4 505.1a8.74 8.74 0 0 0 0 13.8z"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-menu" viewBox="0 0 24 24">
+    <title>Menu</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-menu">
+      <line x1="3" y1="12" x2="21" y2="12"></line>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
+    <title>Expand</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-chevron-right">
+      <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+  </symbol>
+  <symbol id="svg-sun" viewBox="0 0 24 24">
+    <title>Light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="feather-sun">
+      <circle cx="12" cy="12" r="5"></circle>
+      <line x1="12" y1="1" x2="12" y2="3"></line>
+      <line x1="12" y1="21" x2="12" y2="23"></line>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+      <line x1="1" y1="12" x2="3" y2="12"></line>
+      <line x1="21" y1="12" x2="23" y2="12"></line>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon" viewBox="0 0 24 24">
+    <title>Dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-moon">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
+    </svg>
+  </symbol>
+  <symbol id="svg-sun-half" viewBox="0 0 24 24">
+    <title>Auto light/dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-shadow">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M13 12h5" />
+      <path d="M13 15h4" />
+      <path d="M13 18h1" />
+      <path d="M13 9h4" />
+      <path d="M13 6h1" />
+    </svg>
+  </symbol>
+</svg>
+
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation">
+<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc">
+<label class="overlay sidebar-overlay" for="__navigation">
+  <div class="visually-hidden">Hide navigation sidebar</div>
+</label>
+<label class="overlay toc-overlay" for="__toc">
+  <div class="visually-hidden">Hide table of contents sidebar</div>
+</label>
+
+
+
+<div class="page">
+  <header class="mobile-header">
+    <div class="header-left">
+      <label class="nav-overlay-icon" for="__navigation">
+        <div class="visually-hidden">Toggle site navigation sidebar</div>
+        <i class="icon"><svg><use href="#svg-menu"></use></svg></i>
+      </label>
+    </div>
+    <div class="header-center">
+      <a href="../index.html"><div class="brand">无名杀开发  文档</div></a>
+    </div>
+    <div class="header-right">
+      <div class="theme-toggle-container theme-toggle-header">
+        <button class="theme-toggle">
+          <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+          <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
+          <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+          <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+        </button>
+      </div>
+      <label class="toc-overlay-icon toc-header-icon" for="__toc">
+        <div class="visually-hidden">Toggle table of contents sidebar</div>
+        <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+      </label>
+    </div>
+  </header>
+  <aside class="sidebar-drawer">
+    <div class="sidebar-container">
+      
+      <div class="sidebar-sticky"><a class="sidebar-brand" href="../index.html">
+  
+  
+  <span class="sidebar-brand-text">无名杀开发  文档</span>
+  
+</a><form class="sidebar-search-container" method="get" action="../search.html" role="search">
+  <input class="sidebar-search" placeholder="搜索" name="q" aria-label="搜索">
+  <input type="hidden" name="check_keywords" value="yes">
+  <input type="hidden" name="area" value="default">
+</form>
+<div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
+  <ul>
+<li class="toctree-l1"><a class="reference internal" href="../quickstart.html">快速入门</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">游戏运行原理</span></p>
+<ul class="current">
+<li class="toctree-l1 current has-children"><a class="reference internal" href="offline-index.html">单机原理</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of 单机原理</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="process.html">运行流程</a></li>
+<li class="toctree-l2 current current-page"><a class="current reference internal" href="#">全局变量</a></li>
+<li class="toctree-l2"><a class="reference internal" href="local.html">局部变量</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mode.html">游戏模式</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="online-index.html">联机原理</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle navigation of 联机原理</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="server.html">服务器</a></li>
+<li class="toctree-l2"><a class="reference internal" href="client.html">客户端</a></li>
+<li class="toctree-l2"><a class="reference internal" href="function.html">联机函数</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">扩展教程</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../extension.html">快速说明</a></li>
+</ul>
+
+</div>
+</div>
+
+      </div>
+      
+    </div>
+  </aside>
+  <div class="main">
+    <div class="content">
+      <div class="article-container">
+        <a href="#" class="back-to-top muted-link">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"></path>
+          </svg>
+          <span>Back to top</span>
+        </a>
+        <div class="content-icon-container">
+          
+<div class="theme-toggle-container theme-toggle-content">
+            <button class="theme-toggle">
+              <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+              <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
+              <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+              <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+            </button>
+          </div>
+          <label class="toc-overlay-icon toc-content-icon" for="__toc">
+            <div class="visually-hidden">Toggle table of contents sidebar</div>
+            <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+          </label>
+        </div>
+        <article role="main">
+          <section id="id1">
+<h1>全局变量<a class="headerlink" href="#id1" title="Link to this heading">#</a></h1>
+<p>全部变量的说法虽然有失偏颇，但它是无名杀代码编写中随时能调用的变量，称其为全局变量并不为过。</p>
+<section id="lib">
+<h2>lib<a class="headerlink" href="#lib" title="Link to this heading">#</a></h2>
+<p>所谓library，顾名思义就是就是一个数据存储库，其定义和初始化于<code class="docutils literal notranslate"><span class="pre">noname/library/index.js</span></code>中，并且内容为全局的，不会因游戏过程而改变。</p>
+<section id="id2">
+<h3>常量/变量<a class="headerlink" href="#id2" title="Link to this heading">#</a></h3>
+<p>在lib中有许多常量其实是无关紧要的，比如前几个<code class="docutils literal notranslate"><span class="pre">configprefix</span></code>、<code class="docutils literal notranslate"><span class="pre">versionOL</span></code>之类的，更多的就去看源文件，我们主要挑出在扩展编写中会遇到的来进行说明。</p>
+<section id="id3">
+<h4>设置相关<a class="headerlink" href="#id3" title="Link to this heading">#</a></h4>
+<p><code class="docutils literal notranslate"><span class="pre">lib.config</span></code>为游戏的设置内容，具体项可以参考<code class="docutils literal notranslate"><span class="pre">game/config.js</span></code>，我们需要注意<code class="docutils literal notranslate"><span class="pre">config.js</span></code>为第一次初始化的设置，而以后设置的读取和更改均在lib.config中进行，并且在以后通过indexedDB进行加载和保存。</p>
+<p><code class="docutils literal notranslate"><span class="pre">lib.configMenu</span></code>也是类似的，具体项参考<code class="docutils literal notranslate"><span class="pre">game/package.js</span></code>。</p>
+<p><code class="docutils literal notranslate"><span class="pre">lib.configOL</span></code>存储联机时的额外配置。</p>
+</section>
+<section id="id4">
+<h4>卡牌相关<a class="headerlink" href="#id4" title="Link to this heading">#</a></h4>
+<p><code class="docutils literal notranslate"><span class="pre">lib.card</span></code>存储卡牌信息，比如lib.card[‘sha’]就是各种杀的信息。其中有一个特殊元素<code class="docutils literal notranslate"><span class="pre">lib.card.list</span></code>，表示游戏内牌堆的所有牌，每个元素以[花色，点数，名称]的形式存在。</p>
+<p><code class="docutils literal notranslate"><span class="pre">lib.cardPack</span></code>它为一个代理对象(Proxy)，代理的内容为各个卡包，拦截内容为设置值的时候，也就相当于初始化的时候，主要更新了卡牌包的UI，也就是说其主要用于带动UI一起更新，以减少工作量。</p>
+<p><code class="docutils literal notranslate"><span class="pre">lib.cardPackList</span></code>用于联机时额外存储卡牌，一般情况下为空。</p>
+<p><code class="docutils literal notranslate"><span class="pre">lib.cardPackInfo</span></code>用于保存扩展卡牌包信息用的，一般情况下为空。</p>
+</section>
+<section id="id5">
+<h4>角色相关<a class="headerlink" href="#id5" title="Link to this heading">#</a></h4>
+<p><code class="docutils literal notranslate"><span class="pre">lib.character</span></code>存储角色信息，每个元素以[性别，势力，血量，技能组]的方式进行存储。</p>
+<p><code class="docutils literal notranslate"><span class="pre">lib.characterPack</span></code>与前面的<code class="docutils literal notranslate"><span class="pre">lib.cardPack</span></code>类似。</p>
+<p><code class="docutils literal notranslate"><span class="pre">lib.characterFilter</span></code>即角色过滤信息，表示在哪些模式下此角色不会出现。</p>
+<p><code class="docutils literal notranslate"><span class="pre">lib.characterReplace</span></code>即同名角色之间的可切换关系，例如曹叡、旧曹叡、界曹叡之间的互相切换关系。</p>
+<p><code class="docutils literal notranslate"><span class="pre">lib.characterSubstitute</span></code>为换肤换音预留的东西，在本体中没有用处。</p>
+<p><code class="docutils literal notranslate"><span class="pre">lib.characterInitFilter</span></code>前面characterFilter的初始化，历史垃圾。</p>
+<p><code class="docutils literal notranslate"><span class="pre">lib.characterGuozhanFilter</span></code>历史垃圾。</p>
+</section>
+<section id="id6">
+<h4>技能相关<a class="headerlink" href="#id6" title="Link to this heading">#</a></h4>
+<p><code class="docutils literal notranslate"><span class="pre">lib.skill</span></code>存储技能信息，比如lib.skill[‘xiecui’]就是孙茹的撷翠技能，其中以“_”开头为全局技能，自带内容被固定在了lib类的定义中，玩家当然也可以自行添加。当然全局技能具体执行时，使用的是子数组lib.skill.global的内容。lib.skill中还有一系列用于存储技能执行信息的变量，如storage、undist等，其属于动态数据，讲技能编写时我们再深入探究。</p>
+<p><code class="docutils literal notranslate"><span class="pre">lib.skilllist</span></code>是一个字符串数组，为当前开启的角色的所有技能名。</p>
+</section>
+<section id="id7">
+<h4>信息相关<a class="headerlink" href="#id7" title="Link to this heading">#</a></h4>
+<p><code class="docutils literal notranslate"><span class="pre">lib.characterTitle</span></code>即角色右点击信息显示中，基本信息与技能之间的文字，属于角色的可选内容。</p>
+<p><code class="docutils literal notranslate"><span class="pre">lib.characterIntro</span></code>即角色双击信息显示中，介绍一栏的内容。</p>
+<p><code class="docutils literal notranslate"><span class="pre">lib.characterSort</span></code>用于菜单栏的显示，包括再分包和按顺序显示。</p>
+<p><code class="docutils literal notranslate"><span class="pre">lib.translate</span></code>即翻译内容，用于内容展示，例如“xiecui”对应“撷翠”。</p>
+<p><code class="docutils literal notranslate"><span class="pre">lib.dynamicTranslate</span></code>即动态翻译内容，出现于转换技、修改技之类的技能描述会动态改变的技能中。</p>
+<p><code class="docutils literal notranslate"><span class="pre">lib.suit</span></code>花色。</p>
+<p><code class="docutils literal notranslate"><span class="pre">lib.group</span></code>势力。</p>
+<p><code class="docutils literal notranslate"><span class="pre">lib.nature</span></code>元素伤害。</p>
+</section>
+<section id="id8">
+<h4>功能相关<a class="headerlink" href="#id8" title="Link to this heading">#</a></h4>
+<p><code class="docutils literal notranslate"><span class="pre">lib.init</span></code>存储LibInit对象，其定义在<code class="docutils literal notranslate"><span class="pre">noname/library/init/index.js</span></code>，主要存储一些工具类函数。其中有被遗弃的init、onload之类的函数，也有还在使用的reset、js、json等函数。</p>
+<p><code class="docutils literal notranslate"><span class="pre">lib.sort</span></code>存储一些排序用的函数。</p>
+<p><code class="docutils literal notranslate"><span class="pre">lib.filter</span></code>存储一些过滤用的函数。</p>
+<p><code class="docutils literal notranslate"><span class="pre">lib.comparator</span></code>存储一些比较用的函数。</p>
+<p><code class="docutils literal notranslate"><span class="pre">lib.cheat</span></code>存储一些作弊代码。</p>
+<p><code class="docutils literal notranslate"><span class="pre">lib.message</span></code>存储联机相关函数。</p>
+</section>
+</section>
+<section id="id9">
+<h3>函数<a class="headerlink" href="#id9" title="Link to this heading">#</a></h3>
+<p>lib中的大部分核心函数都以object的形式存在，这增大了调试的困难，并不值得赞赏，而成员函数基本为private级别的用法，我们压根无需关注。</p>
+</section>
+</section>
+<section id="game">
+<h2>game<a class="headerlink" href="#game" title="Link to this heading">#</a></h2>
+<p>所谓game，就是用于一局游戏中各种控制的类，之前(角色、卡牌、扩展)导入的game.import、事件创建的game.createEvent、游戏主循环的game.loop和游戏初始摸牌的game.gameDraw。每次初始化一局游戏，都会执行proceed2，其会在开始时清除game的内容。</p>
+<section id="id10">
+<h3>常量/变量<a class="headerlink" href="#id10" title="Link to this heading">#</a></h3>
+<p>由于game主要为功能类，因此常量/变量并不多，可以一次性全部讲完。</p>
+<p><code class="docutils literal notranslate"><span class="pre">game.online</span></code>、<code class="docutils literal notranslate"><span class="pre">game.onlineID</span></code>和<code class="docutils literal notranslate"><span class="pre">game.onlineKey</span></code>用于保存联机信息。</p>
+<p><code class="docutils literal notranslate"><span class="pre">game.players</span></code>表示存活玩家，<code class="docutils literal notranslate"><span class="pre">game.dead</span></code>表示死亡玩家。</p>
+<p><code class="docutils literal notranslate"><span class="pre">game.playerMap</span></code>为id到玩家的对应映射。</p>
+<p><code class="docutils literal notranslate"><span class="pre">game.phaseNumber</span></code>表示当前处于第几个角色的回合。</p>
+<p><code class="docutils literal notranslate"><span class="pre">game.roundNumber</span></code>表示当前处于游戏第几轮。</p>
+<p><code class="docutils literal notranslate"><span class="pre">game.shuffleNumber</span></code>表示当前第几次洗牌。</p>
+<p><code class="docutils literal notranslate"><span class="pre">game.me</span></code>表示当前操作的玩家。</p>
+<p><code class="docutils literal notranslate"><span class="pre">game.chess</span></code>表示当前是否为下棋模式。</p>
+</section>
+<section id="id11">
+<h3>函数<a class="headerlink" href="#id11" title="Link to this heading">#</a></h3>
+<p>game最大的作用是对游戏进行控制，里面的函数为其核心功能。</p>
+<section id="id12">
+<h4>历史遗物<a class="headerlink" href="#id12" title="Link to this heading">#</a></h4>
+<p><code class="docutils literal notranslate"><span class="pre">game.addNature</span></code>添加新的属性杀。</p>
+<p><code class="docutils literal notranslate"><span class="pre">game.hasNature</span></code>判断卡牌信息/事件是否有某个属性。</p>
+<p><code class="docutils literal notranslate"><span class="pre">game.setNature</span></code>设置卡牌信息/事件的属性。</p>
+<p><code class="docutils literal notranslate"><span class="pre">game.addXXX</span></code>添加XXX。</p>
+<p><code class="docutils literal notranslate"><span class="pre">game.addBackgroundMusic</span></code>在设置选项中添加一首背景音乐。</p>
+<p><code class="docutils literal notranslate"><span class="pre">game.removeBackgroundMusic</span></code>从设置选项中移除一首背景音乐。</p>
+<p><code class="docutils literal notranslate"><span class="pre">game.generateBeatmapTimeleap</span></code>用给定的BPM、节拍和偏移生成谱面。</p>
+</section>
+<section id="id13">
+<h4>牌堆相关<a class="headerlink" href="#id13" title="Link to this heading">#</a></h4>
+<p><code class="docutils literal notranslate"><span class="pre">game.washCard</span></code>洗牌。</p>
+<p><code class="docutils literal notranslate"><span class="pre">game.addCardKnower</span></code>为牌添加知情者。</p>
+<p><code class="docutils literal notranslate"><span class="pre">game.clearCardKnowers</span></code>移除牌的所有知情者。</p>
+<p><code class="docutils literal notranslate"><span class="pre">game.cardsDiscard</span></code>弃牌。</p>
+<p><code class="docutils literal notranslate"><span class="pre">game.cardsGotoOrdering</span></code>把牌顺序摆放。</p>
+<p><code class="docutils literal notranslate"><span class="pre">game.cardsGotoSpecial</span></code>把牌作为某种标记。</p>
+<p><code class="docutils literal notranslate"><span class="pre">game.cardsGotoPile</span></code>把牌放到牌堆顶。</p>
+<p><code class="docutils literal notranslate"><span class="pre">game.replaceHandcards</span></code>置换手牌。</p>
+<p><code class="docutils literal notranslate"><span class="pre">game.removeCard</span></code>移除卡牌。</p>
+</section>
+<section id="id14">
+<h4>记录相关<a class="headerlink" href="#id14" title="Link to this heading">#</a></h4>
+<p><code class="docutils literal notranslate"><span class="pre">game.getAllGlobalHistory</span></code>获得<code class="docutils literal notranslate"><span class="pre">_status.globalHistory</span></code>中的操作历史，可以嵌入一个函数来根据历史信息做出某些操作。</p>
+<p><code class="docutils literal notranslate"><span class="pre">game.log</span></code>输出游戏日志。</p>
+<p><code class="docutils literal notranslate"><span class="pre">game.showHistory</span></code>展示游戏日志的UI。</p>
+</section>
+<section id="id15">
+<h4>联机相关<a class="headerlink" href="#id15" title="Link to this heading">#</a></h4>
+<p><code class="docutils literal notranslate"><span class="pre">game.broadcast</span></code></p>
+<p><code class="docutils literal notranslate"><span class="pre">game.broadcastAll</span></code></p>
+<p><code class="docutils literal notranslate"><span class="pre">game.updateWaiting</span></code></p>
+<p><code class="docutils literal notranslate"><span class="pre">game.waitForPlayer</span></code></p>
+<p><code class="docutils literal notranslate"><span class="pre">game.connect</span></code></p>
+<p><code class="docutils literal notranslate"><span class="pre">game.send</span></code></p>
+<p><code class="docutils literal notranslate"><span class="pre">game.sendTo</span></code></p>
+<p><code class="docutils literal notranslate"><span class="pre">game.createServer</span></code></p>
+</section>
+<section id="id16">
+<h4>扩展相关<a class="headerlink" href="#id16" title="Link to this heading">#</a></h4>
+<p><code class="docutils literal notranslate"><span class="pre">game.import</span></code></p>
+<p><code class="docutils literal notranslate"><span class="pre">game.importExtension</span></code></p>
+<p><code class="docutils literal notranslate"><span class="pre">game.export</span></code></p>
+<p><code class="docutils literal notranslate"><span class="pre">game.hasExtension</span></code></p>
+<p><code class="docutils literal notranslate"><span class="pre">game.hasExtensionLoaded</span></code></p>
+<p><code class="docutils literal notranslate"><span class="pre">game.removeExtension</span></code></p>
+</section>
+<section id="id17">
+<h4>流程相关<a class="headerlink" href="#id17" title="Link to this heading">#</a></h4>
+<p><code class="docutils literal notranslate"><span class="pre">game.forceOver</span></code></p>
+<p><code class="docutils literal notranslate"><span class="pre">game.over</span></code></p>
+<p><code class="docutils literal notranslate"><span class="pre">game.pause</span></code></p>
+<p><code class="docutils literal notranslate"><span class="pre">game.pause2</span></code></p>
+<p><code class="docutils literal notranslate"><span class="pre">game.resume</span></code></p>
+<p><code class="docutils literal notranslate"><span class="pre">game.resume2</span></code></p>
+<p><code class="docutils literal notranslate"><span class="pre">game.delaye</span></code></p>
+<p><code class="docutils literal notranslate"><span class="pre">game.delayex</span></code></p>
+<p><code class="docutils literal notranslate"><span class="pre">game.delay</span></code></p>
+<p><code class="docutils literal notranslate"><span class="pre">game.delayx</span></code></p>
+<p><code class="docutils literal notranslate"><span class="pre">game.check</span></code></p>
+</section>
+<section id="id18">
+<h4>其它<a class="headerlink" href="#id18" title="Link to this heading">#</a></h4>
+<p><code class="docutils literal notranslate"><span class="pre">game.addGlobalSkill</span></code></p>
+<p><code class="docutils literal notranslate"><span class="pre">game.removeGlobalSkill</span></code></p>
+<p><code class="docutils literal notranslate"><span class="pre">game.resetSkills</span></code></p>
+<p><code class="docutils literal notranslate"><span class="pre">game.addRecentCharacter</span></code></p>
+<p><code class="docutils literal notranslate"><span class="pre">game.createCard</span></code></p>
+<p><code class="docutils literal notranslate"><span class="pre">game.createCard2</span></code></p>
+<p><code class="docutils literal notranslate"><span class="pre">game.swapSeat</span></code></p>
+<p><code class="docutils literal notranslate"><span class="pre">game.swapPlayer</span></code></p>
+<p><code class="docutils literal notranslate"><span class="pre">game.swapControl</span></code></p>
+<p><code class="docutils literal notranslate"><span class="pre">game.swapPlayerAuto</span></code></p>
+<p><code class="docutils literal notranslate"><span class="pre">game.countPlayer</span></code></p>
+<p><code class="docutils literal notranslate"><span class="pre">game.countPlayer2</span></code></p>
+<p><code class="docutils literal notranslate"><span class="pre">...</span></code></p>
+</section>
+</section>
+</section>
+<section id="ui">
+<h2>ui<a class="headerlink" href="#ui" title="Link to this heading">#</a></h2>
+<p>所谓ui，就是视图相关的类，功能性并不强，里面的元素几乎都是HTMLDivElement，想要美化UI的可以研究一下。当然其中还有一个子类<code class="docutils literal notranslate"><span class="pre">ui.create</span></code>包含一些列创建UI的封装方法，可以用来快速创建UI。最后UI是一个本地属性，只能影响本地的界面。</p>
+</section>
+<section id="get">
+<h2>get<a class="headerlink" href="#get" title="Link to this heading">#</a></h2>
+<p>所谓get，主要用于信息的获取，在没有属性权限的情况下，还额外搞个封装并大量应用，我不好评价。至于用法直接看意思，望文生义即可，没啥好说的。</p>
+</section>
+<section id="ai">
+<h2>ai<a class="headerlink" href="#ai" title="Link to this heading">#</a></h2>
+<p>所谓ai，就是指游戏中非玩家操作的方法论。基础的AI包括三个基本方法<code class="docutils literal notranslate"><span class="pre">chooseButton</span></code>、<code class="docutils literal notranslate"><span class="pre">chooseCard</span></code>、<code class="docutils literal notranslate"><span class="pre">chooseTarget</span></code>分别告诉AI选择哪个按钮、哪个卡牌、哪个目标。哪个按钮指的是，当AI处于能发动技能的时候，要选择哪个技能发动，而如何发动的过程则是写进每个技能的AI属性中；哪个卡牌指的是，当AI处于能使用卡牌的时候，要选择哪个卡牌，而如何使用卡牌的过程写进了每个卡牌的AI属性中；哪个目标也是同理的。对于ai这个全局变量实际没什么使用和改变的必要，它本身是写进技能和卡牌的，所以其相当于一个无效参数。</p>
+</section>
+<section id="status">
+<h2>_status<a class="headerlink" href="#status" title="Link to this heading">#</a></h2>
+<p>所谓_status，是一个全局状态记录类，其不止限于一局游戏，而是贯穿整个程序的运行。</p>
+<p><code class="docutils literal notranslate"><span class="pre">_status.paused</span></code>、<code class="docutils literal notranslate"><span class="pre">_status.paused2</span></code>、<code class="docutils literal notranslate"><span class="pre">_status.paused3</span></code>用来表示游戏所处的暂停状态，总之都是系统自己控制的，别去管就行了。</p>
+<p><code class="docutils literal notranslate"><span class="pre">_status.clicked</span></code>、<code class="docutils literal notranslate"><span class="pre">_status.dragged</span></code>、<code class="docutils literal notranslate"><span class="pre">_status.touchconfirmed</span></code>表示UI相关状态，同上。</p>
+<p><code class="docutils literal notranslate"><span class="pre">_status.extension</span></code>、<code class="docutils literal notranslate"><span class="pre">_status.importingExtension</span></code>、<code class="docutils literal notranslate"><span class="pre">_status.extensionLoaded</span></code>、<code class="docutils literal notranslate"><span class="pre">_status.extensionLoading</span></code>、<code class="docutils literal notranslate"><span class="pre">_status.importing</span></code>表示扩展相关状态，同上。</p>
+<p><code class="docutils literal notranslate"><span class="pre">_status.over</span></code>表示游戏是否结束。</p>
+<p><code class="docutils literal notranslate"><span class="pre">_status.auto</span></code>表示是否为托管状态。</p>
+<p><code class="docutils literal notranslate"><span class="pre">_status.event</span></code>表示当前在处理的事件。</p>
+<p><code class="docutils literal notranslate"><span class="pre">_status.globalHistory</span></code>以每个玩家的回合为单位，记录卡牌移动、卡牌使用、血量变化等信息。</p>
+<p><code class="docutils literal notranslate"><span class="pre">_status.cardtag</span></code>记录带有标签的卡牌。</p>
+<p><code class="docutils literal notranslate"><span class="pre">_status.renku</span></code>仁库记录，其为部分武将使用的游戏外共通区域。</p>
+<p><code class="docutils literal notranslate"><span class="pre">_status.connectMode</span></code>是否为联机状态。</p>
+<p><code class="docutils literal notranslate"><span class="pre">_status.currentPhase</span></code>表示当前的回合。</p>
+<p><code class="docutils literal notranslate"><span class="pre">_status.roundStart</span></code>表示一轮开始的玩家。</p>
+<p>小结：在实际开发的过程中，我们使用最多的主要为lib、game、_status这三个变量，有时会稍微用一下get和ui，只要我们搞清楚这些变量的定位和生命周期，就算我们不知道全部的API，也可以顺藤摸瓜地找到我们想要的值和函数。</p>
+</section>
+</section>
+
+        </article>
+      </div>
+      <footer>
+        
+        <div class="related-pages">
+          <a class="next-page" href="local.html">
+              <div class="page-info">
+                <div class="context">
+                  <span>Next</span>
+                </div>
+                <div class="title">局部变量</div>
+              </div>
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+            </a>
+          <a class="prev-page" href="process.html">
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+              <div class="page-info">
+                <div class="context">
+                  <span>Previous</span>
+                </div>
+                
+                <div class="title">运行流程</div>
+                
+              </div>
+            </a>
+        </div>
+        <div class="bottom-of-page">
+          <div class="left-details">
+            <div class="copyright">
+                Copyright &#169; 2024, fuwuzhizi
+            </div>
+            Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
+            
+            <a href="https://github.com/pradyunsg/furo">Furo</a>
+            
+          </div>
+          <div class="right-details">
+            
+          </div>
+        </div>
+        
+      </footer>
+    </div>
+    <aside class="toc-drawer">
+      
+      
+      <div class="toc-sticky toc-scroll">
+        <div class="toc-title-container">
+          <span class="toc-title">
+            On this page
+          </span>
+        </div>
+        <div class="toc-tree-container">
+          <div class="toc-tree">
+            <ul>
+<li><a class="reference internal" href="#">全局变量</a><ul>
+<li><a class="reference internal" href="#lib">lib</a><ul>
+<li><a class="reference internal" href="#id2">常量/变量</a><ul>
+<li><a class="reference internal" href="#id3">设置相关</a></li>
+<li><a class="reference internal" href="#id4">卡牌相关</a></li>
+<li><a class="reference internal" href="#id5">角色相关</a></li>
+<li><a class="reference internal" href="#id6">技能相关</a></li>
+<li><a class="reference internal" href="#id7">信息相关</a></li>
+<li><a class="reference internal" href="#id8">功能相关</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#id9">函数</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#game">game</a><ul>
+<li><a class="reference internal" href="#id10">常量/变量</a></li>
+<li><a class="reference internal" href="#id11">函数</a><ul>
+<li><a class="reference internal" href="#id12">历史遗物</a></li>
+<li><a class="reference internal" href="#id13">牌堆相关</a></li>
+<li><a class="reference internal" href="#id14">记录相关</a></li>
+<li><a class="reference internal" href="#id15">联机相关</a></li>
+<li><a class="reference internal" href="#id16">扩展相关</a></li>
+<li><a class="reference internal" href="#id17">流程相关</a></li>
+<li><a class="reference internal" href="#id18">其它</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#ui">ui</a></li>
+<li><a class="reference internal" href="#get">get</a></li>
+<li><a class="reference internal" href="#ai">ai</a></li>
+<li><a class="reference internal" href="#status">_status</a></li>
+</ul>
+</li>
+</ul>
+
+          </div>
+        </div>
+      </div>
+      
+      
+    </aside>
+  </div>
+</div><script src="../_static/documentation_options.js?v=7d86a446"></script>
+    <script src="../_static/doctools.js?v=888ff710"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/scripts/furo.js?v=32e29ea5"></script>
+    <script src="../_static/translations.js?v=beaddf03"></script>
+    </body>
+</html>

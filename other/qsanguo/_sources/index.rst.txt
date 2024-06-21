@@ -1,0 +1,22 @@
+.. QTSha-doc documentation master file, created by
+   sphinx-quickstart on Mon Apr 29 09:36:29 2024.
+   You can adapt this file completely to your liking, but it should at least
+   contain the root `toctree` directive.
+
+QT系杀开发文档
+=====================================
+什么是QT系杀，简单来讲就是以Qt+lua为基本开发的三国杀。其主要有两个支系，一个是远古时代的 `神杀 <https://github.com/Mogara/QSanguosha>`__ 和 `神杀-v2 <https://gitee.com/L-T-Y/QSanguosha-v2>`__ ，另一个则是新起的 `新月杀 <https://github.com/Qsgs-Fans/FreeKill>`__ 。由于这两系杀在文档上都比较完善，历史积累也十分丰厚，因此本文档将聚焦于Qt(C++)代码，研究游戏的运行原理。
+
+.. toctree::
+   :hidden:
+   
+   quickstart.md
+
+.. toctree::
+   :caption: 游戏运行原理
+   
+   part1/index.md
+   part2/index.md
+
+
+

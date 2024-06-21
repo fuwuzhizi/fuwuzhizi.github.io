@@ -1,0 +1,97 @@
+# C/S架构
+
+所谓的C/S架构实际上就是两个对象直接互相传递信息的过程，核心方法无非就是“发送数据信息”和“信息接收的监听”，因此我们主要探究Client和Server的这两个部分。
+
+## 服务器
+
+服务器的实现为QTcpServer，保存于成员变量server中，当一个用户进行连接请求的时候，会触发信号`newConnection`，Server通过Qt的“信号-槽”机制将其重定向为`processNewConnection`。在处理的函数中，先通过`nextPendingConnection`将连接的QTcpSocket对象取出，并实例化成与接口无关的ClientSocket对象，最后将这个对象作为参数触发`new_connection`信号。回到Server对象初始化的过程中，其有两个核心内容，一个是调用`createNewRoom()`来创建房间。
+
+- 首先，根据`Config.GameMode`中的游戏模式，创建Room对象(定义于`src/server/room.cpp`中)。而房间主要就是初始化各种数据，比如获取玩家数量，获取模式的scenario，此处的模式除了剧情模式和小型场景以外，玩家通过进入时的配置界面得到的模式属于custom_scenario，保存在Sanguosha的m_customScene对象里，是CustomScenario的实例化，和小型场景的LoadedScenario一样，均属于MiniScene的子类；
+- 接着是lua环境的检测，在房间创建的时候会被初始化，并加载`lua/sanguosha.lua`和`lua/ai/smart-ai.lua`。值得注意的是，这和Sanguosha里的lua环境是不同的，这个是属于服务器Server的，用于建立整个游戏的运行逻辑，因此它并没有读入用于客户端相关设置的`config.lua`；
+- 最后是房间插入房间列表，并进行相关的“信号-槽”绑定，简单来说就是把房间的信号发送到Server对象，并通过Server对象来便于发送给每个客户端。
+
+另一个核心则是对`new_connection`又进行了一次重定向，只不过这次带了个ClientSocket对象，处理过程在函数`processNewConnection`中。
+
+- 首先，服务器会取出地址，看其是否是被ban掉的IP，是的话就通过`disconnectFromHost()`直接让它滚蛋。至于此处的server_message信号只是用于记录服务器的日志，如果以服务器状态启动的话就会和StartScene的server_log的UI关联起来；
+- 然后监听客户端的断开信号，将其关联到`cleanup`函数，只是清除ClientSocket对象和玩家数量来减少内存占用而已。然后发了两个数据包到客户端，此处的数据包是神杀自定的一种协议(定义于`src/core/protocol.cpp`)，是一种指令式协议，后面我们再详细讨论。一个是版本检测checkVersion，通过这个客户端成功进入了房间，另一个是设置setup，总之就是成功入房后想干啥就干啥；
+- 最后将这个客户端的message_got信号连接到processRequest进行处理。这个信号来自于ClientSocket底层实现的getMessage函数，当服务端从客户端收到以`\n`结束的一行数据后，触发此信号让服务端进行处理。
+
+看完连接事件，断开没啥好看的，于是正好来看看接收信号后的处理事件。
+
+- 首先通过`sender()`获得信号的发送者，也就是在服务端的对应客户端的ClientSocket对象，然后暂时断开信号连接，先处理完当前的数据包后再恢复；
+- 然后通过Packet对象，即我们的神杀协议，对数据包进行匹配解析，如果数据包不符合协议，则向客户端发送警告信息并断开连接；
+- 接着从数据包中可以解析出，名称和头像等信息，并且查看当前是重连、创建房间、还是加入游戏。创建房间的过程，我们已经见识过了，所以不论重连还是加入，主要还是进入这个动作；
+- 此时在服务器中，客户端将从普通的ClientSocket对象，转化为ServerPlayer对象，对于重连的玩家会直接从服务器的players进行寻找，而服务器玩家对象创建的过程在`addSocket`函数中。
+
+没想到吧，服务器的连接还分为两层，最开始的连接是普通的ClientSocket，发送名称头像等信息后，就会升级为ServerPlayer对象(定义于`src/server/serverplayer.cpp`)，我们来看看它的创建过程。
+
+- 首先，我们会创建一个ServerPlayer，并将通信组件设置为原来的ClientSocket，具体来说就是就是信号的重定向。将收到信息的message_got信号交给升级对象的`getMessage`进行处理；
+- 接着又是两个信号连接，断开不用管，主要是其将request_got与服务端的`processClientPacket`进行连接，而request_got实际上就是升级对象的`getMessage`进行处理时发出的信号，也就是说接收的数据在升级后由服务器房间的`processClientPacket`函数进行处理；
+- 最后，服务其通过`signup`为玩家注册信息，并发出newPlayer信号表示来了一个玩家。注册就是将信息保存到房间中，并向包括房主的玩家展示某些东西，而newPlayer信号主要发给相关的UI，用于更新信息。
+
+兜兜转转以后，为了了解服务器对收到信息的处理，我们又要转向processClientPacket函数。
+
+- 首先依旧是通过Packet进行解包，并获得发送的ServerPlayer对象；
+- 接着查看游戏是否结束，结束的话，向这个玩家发送游戏已经结束的警告信息；
+- 接着判断数据包的类型，如果是REPLY型，表示这是玩家对服务器的响应数据，通过`processResponse`函数进行处理。在处理过程中，会有是否为回应状态检测、回应格式是否正确检测等，成功通过以后，里面有各种互斥锁的操作，主要就是多线程数据保护用的，而所谓的响应也就只是通过setClientReply改变了玩家对象的一段数据。这类信息实际就是，当游戏进行某些需要玩家操作的内容的时候，会做出请求，玩家操作完结以后，服务器就会受到这类反馈数据；
+- 最后判断的数据类型为REQUEST型和NOTIFICATION型，它们均由玩家主动发出，其内容是调用服务器房间m_callbacks中存储的函数指针，其在房间创建的时候就已经通过`initCallbacks()`函数被初始化了。
+
+由于神杀采用的为TCP协议，为字节流传输的协议，所以对于一段数据会经过多层的包装，搞清这些协议的内容是搞清神杀交互机制的基础。
+
+## 客户端
+
+我们再来看看客户端吧，在神杀中单机启动和连入服务器的本质其实是一样的，只是前者会在本地启动服务器。客户端的实现只需要一个QTcpSocket，其被套上了NativeClientSocket的壳用于本地实现，并最后封装到Client屏蔽差异。但无论如何我们只关注连接事件和信息接收事件。
+
+- 连接函数`connectToHost`在创建Client时被调用，连接成功后会触发`connected`信号，但游戏并没有处理，也就是发送连接信号，连上以后就是等待服务器的反馈了；
+- 由之前可知，我们会收到服务器发出的两个数据包，因此我们先来查看一下客户端接收数据的处理过程；
+    * 收到数据的信号为`readyRead`，其先被绑定到了NativeClientSocket的`getMessage`函数上，其会读取一行数据，并发送信号message_got将数据携带过去；
+	* 在客户端创建过程中，将message_got分别绑定到了录像机和`processServerPacket`函数上，我们需要考察的是后者；
+	* 处理的过程与服务器类似，通过Packet进行协议解包，对于NOTIFICATION型数据，直接调用m_callbacks中对应的函数指针来处理；
+	* 而对于REQUEST型数据，进行另一层解包后，调用m_interactions中对应的函数指针来处理。
+- 服务器发送的`S_COMMAND_CHECK_VERSION`为NOTIFICATION型数据，因此调用` m_callbacks[S_COMMAND_CHECK_VERSION] = &Client::checkVersion;`，即`checkVersion`函数；
+- 进行简单的数据处理拆分之后，发出version_checked的信号，这个信号又被绑定到了MainWindow的`checkVersion`函数，这就和我们之前说的完全一样；
+- 在注册函数`sign()`函数中，我们向服务器发送NOTIFICATION型的数据S_COMMAND_SIGNUP，但此时服务器处于ClientSocket阶段使用`processRequest`进行处理，而这类信息只是为了能通过前面的检测而升级为ServerPlayer对象，从而完成所谓的注册；
+- 然后服务器的第二个数据包是NOTIFICATION型的`S_COMMAND_SETUP`，即客服端调用`setup`函数，进行一些处理后，客户端先发出server_connected的信号，其在MainWindow中被绑定到了enterRoom函数上，于是又回到了上一部分的内容，也就是相关UI界面的更新；
+- 本地界面搞好后，本地会再次向服务端发送NOTIFICATION型的数据S_COMMAND_TOGGLE_READY，此时服务端为ServerPlayer阶段，因此即调用服务端房间的`toggleReadyCommand`函数；
+- 而这个函数的内容就是我们之前所说的，如果游戏未开始且人满了，就调用`start()`开始游戏。
+
+客户端的内容显然并不复杂。
+
+## 传输协议
+
+为了更好地讲解游戏的运行过程，我们需要先研究一下，神杀的传输协议，实际上在前面我们已经见过好多次了，其本质就是一种指令的互传。翻开协议的定义文件`src/core/protocol.h`，枚举部分可以直接跳过了，我们直奔Packet类，其继承自抽象类AbstractPacket，但并没有多态，所以不看也无所谓。
+
+由于其书写并不规范，所以我们从数据的创建过程进行考察，即构造方法`Packet packet(S_SRC_ROOM | S_TYPE_NOTIFICATION | S_DEST_CLIENT, S_COMMAND_CHECK_VERSION);`，其第一部分为包描述存储于packetDescription中，其占1.5个字节，每0.5个字节分别代表[目的地，出发地，类型]，每个字节以“位1指示”的方式说明类型。
+
+```C
+enum PacketDescription
+{
+    S_DESC_UNKNOWN,
+    S_TYPE_REQUEST = 0x1,
+    S_TYPE_REPLY = 0x2,
+    S_TYPE_NOTIFICATION = 0x4,
+    S_TYPE_MASK = 0xf,
+    S_SRC_ROOM = 0x10,
+    S_SRC_LOBBY = 0x20,
+    S_SRC_CLIENT = 0x40,
+    S_SRC_MASK = 0xf0,
+    S_DEST_ROOM = 0x100,
+    S_DEST_LOBBY = 0x200,
+    S_DEST_CLIENT = 0x400,
+    S_DEST_MASK = 0xf00,
+
+    S_DESC_DUMMY
+};
+```
+
+> 位1指示：因为不知道怎么称呼而乱起的名字，简单来讲就是在二进制位中通过特定位置为1，其它位置为0来表示类型的方法。在此例中，`0x1=01`、`0x2=010`、`0x4=0100`、`0xf=01000`就分别代表了四种数据类型。至于为什么这么做，至少有减少数据传输流量这一回事。
+
+其第二部分为指令，直接被赋值给了成员变量command，显然此时的包体并不完全，我们还需通过`setMessageBody`来完善传输使用的数据，其将游戏版本号赋值给了messageBody。而此时包体就已经构建完成了，但它无法用于字节流的传输，所以我们调用`toString`的方法让对象结构化，过程实现就是类数据的Json化，大家搞数据传输似乎都喜欢这一套呢！
+
+当然当然单纯Json化还不够，还得再byte化，再编码统一化。QString对象只是为了放到send的参数中，为了让数据只用一行的byte类型的发送出去，还需调用QString的`toLatin1`处理一下，即ASCII化。接收时，我们会使用`parse`来解析二进制数据，过程就是倒过来，从而得到Packet对象。实际上，底层的东西看看就好，而应用层的东西并不多。
+
+我们需要注意的是messageBody为QVariant类型，而不单单是一个字符串类型，其是可以用来存储函数调用参数的。在服务器发送setup指令的时候就调用`Sanguosha->getSetupString()`获取游戏设置，并将其作为包体内容进行发送。另外，我们不要因为看到包体结构简单就觉得信息交流会少很多，实际上我们可以通过结构化messageBody的嵌套得到更多的东西。
+
+在具体的指令函数方面，客户端的显然十分简单，定义在Client的构造函数中，并且都是直接进行绑定的。而服务器这边就有些复杂了，从ClientSocket向ServerPlayer的升级过程已经探究过了，核心的内容主要集中在Server的Room对象中，REPLY与游戏进行相关我们后面再说，而m_callbacks的指令尽然只有8个，是不是有点太少了。
+
+随便看看名字，`toggleReadyCommand`是玩家准备就绪后触发，`addRobotCommand`显然是加机器人，`speakCommand`是发送聊天信息，`trustCommand`改变状态，`pauseCommand`暂停游戏，`networkDelayTestCommand`用于延时测试，`processRequestCheat`用于处理作弊请求，`processRequestSurrender`用于处理投降请求。嗯，确实都是房间相关，没有游戏的感觉，为此，我们还是来看看游戏的运行过程吧。

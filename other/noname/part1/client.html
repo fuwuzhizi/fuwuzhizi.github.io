@@ -1,0 +1,368 @@
+<!doctype html>
+<html class="no-js" lang="zh-CN" data-content_root="../">
+  <head><meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1"/>
+    <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="index" title="索引" href="../genindex.html" /><link rel="search" title="搜索" href="../search.html" /><link rel="next" title="联机函数" href="function.html" /><link rel="prev" title="服务器" href="server.html" />
+
+    <!-- Generated with Sphinx 7.2.6 and Furo 2024.01.29 -->
+        <title>客户端 - 无名杀开发 文档</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=135e06be" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/furo-extensions.css?v=36a5483c" />
+    
+    
+
+
+<style>
+  body {
+    --color-code-background: #f8f8f8;
+  --color-code-foreground: black;
+  
+  }
+  @media not print {
+    body[data-theme="dark"] {
+      --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+    }
+    @media (prefers-color-scheme: dark) {
+      body:not([data-theme="light"]) {
+        --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+      }
+    }
+  }
+</style></head>
+  <body>
+    
+    <script>
+      document.body.dataset.theme = localStorage.getItem("theme") || "auto";
+    </script>
+    
+
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+  <symbol id="svg-toc" viewBox="0 0 24 24">
+    <title>Contents</title>
+    <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 1024 1024">
+      <path d="M408 442h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8zm-8 204c0 4.4 3.6 8 8 8h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56zm504-486H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zm0 632H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zM115.4 518.9L271.7 642c5.8 4.6 14.4.5 14.4-6.9V388.9c0-7.4-8.5-11.5-14.4-6.9L115.4 505.1a8.74 8.74 0 0 0 0 13.8z"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-menu" viewBox="0 0 24 24">
+    <title>Menu</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-menu">
+      <line x1="3" y1="12" x2="21" y2="12"></line>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
+    <title>Expand</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-chevron-right">
+      <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+  </symbol>
+  <symbol id="svg-sun" viewBox="0 0 24 24">
+    <title>Light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="feather-sun">
+      <circle cx="12" cy="12" r="5"></circle>
+      <line x1="12" y1="1" x2="12" y2="3"></line>
+      <line x1="12" y1="21" x2="12" y2="23"></line>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+      <line x1="1" y1="12" x2="3" y2="12"></line>
+      <line x1="21" y1="12" x2="23" y2="12"></line>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon" viewBox="0 0 24 24">
+    <title>Dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-moon">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
+    </svg>
+  </symbol>
+  <symbol id="svg-sun-half" viewBox="0 0 24 24">
+    <title>Auto light/dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-shadow">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M13 12h5" />
+      <path d="M13 15h4" />
+      <path d="M13 18h1" />
+      <path d="M13 9h4" />
+      <path d="M13 6h1" />
+    </svg>
+  </symbol>
+</svg>
+
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation">
+<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc">
+<label class="overlay sidebar-overlay" for="__navigation">
+  <div class="visually-hidden">Hide navigation sidebar</div>
+</label>
+<label class="overlay toc-overlay" for="__toc">
+  <div class="visually-hidden">Hide table of contents sidebar</div>
+</label>
+
+
+
+<div class="page">
+  <header class="mobile-header">
+    <div class="header-left">
+      <label class="nav-overlay-icon" for="__navigation">
+        <div class="visually-hidden">Toggle site navigation sidebar</div>
+        <i class="icon"><svg><use href="#svg-menu"></use></svg></i>
+      </label>
+    </div>
+    <div class="header-center">
+      <a href="../index.html"><div class="brand">无名杀开发  文档</div></a>
+    </div>
+    <div class="header-right">
+      <div class="theme-toggle-container theme-toggle-header">
+        <button class="theme-toggle">
+          <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+          <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
+          <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+          <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+        </button>
+      </div>
+      <label class="toc-overlay-icon toc-header-icon" for="__toc">
+        <div class="visually-hidden">Toggle table of contents sidebar</div>
+        <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+      </label>
+    </div>
+  </header>
+  <aside class="sidebar-drawer">
+    <div class="sidebar-container">
+      
+      <div class="sidebar-sticky"><a class="sidebar-brand" href="../index.html">
+  
+  
+  <span class="sidebar-brand-text">无名杀开发  文档</span>
+  
+</a><form class="sidebar-search-container" method="get" action="../search.html" role="search">
+  <input class="sidebar-search" placeholder="搜索" name="q" aria-label="搜索">
+  <input type="hidden" name="check_keywords" value="yes">
+  <input type="hidden" name="area" value="default">
+</form>
+<div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
+  <ul>
+<li class="toctree-l1"><a class="reference internal" href="../quickstart.html">快速入门</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">游戏运行原理</span></p>
+<ul class="current">
+<li class="toctree-l1 has-children"><a class="reference internal" href="offline-index.html">单机原理</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of 单机原理</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="process.html">运行流程</a></li>
+<li class="toctree-l2"><a class="reference internal" href="global.html">全局变量</a></li>
+<li class="toctree-l2"><a class="reference internal" href="local.html">局部变量</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mode.html">游戏模式</a></li>
+</ul>
+</li>
+<li class="toctree-l1 current has-children"><a class="reference internal" href="online-index.html">联机原理</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle navigation of 联机原理</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="server.html">服务器</a></li>
+<li class="toctree-l2 current current-page"><a class="current reference internal" href="#">客户端</a></li>
+<li class="toctree-l2"><a class="reference internal" href="function.html">联机函数</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">扩展教程</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../extension.html">快速说明</a></li>
+</ul>
+
+</div>
+</div>
+
+      </div>
+      
+    </div>
+  </aside>
+  <div class="main">
+    <div class="content">
+      <div class="article-container">
+        <a href="#" class="back-to-top muted-link">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"></path>
+          </svg>
+          <span>Back to top</span>
+        </a>
+        <div class="content-icon-container">
+          
+<div class="theme-toggle-container theme-toggle-content">
+            <button class="theme-toggle">
+              <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+              <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
+              <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+              <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+            </button>
+          </div>
+          <label class="toc-overlay-icon toc-content-icon" for="__toc">
+            <div class="visually-hidden">Toggle table of contents sidebar</div>
+            <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+          </label>
+        </div>
+        <article role="main">
+          <section id="id1">
+<h1>客户端<a class="headerlink" href="#id1" title="Link to this heading">#</a></h1>
+<p>服务端看得差不多了，我们再来研究一下客户端。</p>
+<section id="id2">
+<h2>联机大厅<a class="headerlink" href="#id2" title="Link to this heading">#</a></h2>
+<p>连上服务端的第一步就是根据服务器返回的(roomlist, events, clientlist, wsid)来执行客户端的roomlist函数，其位于<code class="docutils literal notranslate"><span class="pre">noname/library/index.js</span></code>的<code class="docutils literal notranslate"><span class="pre">message.client</span></code>变量下。</p>
+<ul class="simple">
+<li><p>首先客户端会执行服务端的key函数，把本地的onlineKey发送给服务器，以更新到ws对象中；</p></li>
+<li><p>接着就是更新本地的最近联机ip，并执行服务端的changeAvatar函数，把本地的名称(nickname)和头像(avatar)更新到ws对象中；</p></li>
+<li><p>然后就是手动调用本地的updaterooms和updateevents来更新房间列表和约战；</p></li>
+<li><p>然后就是重连检测，如果对比上了缓存房间id，则执行服务端的enter函数来进入这个房间；</p></li>
+<li><p>最后是房间退出后的重开和重连。</p></li>
+</ul>
+<p>在上述内容中，我们主要关心两个东西，一个房间列表的点击事件，二是创建房间的点击事件。对于前者，其在updaterooms中将事件赋给了<code class="docutils literal notranslate"><span class="pre">ui.click.connectroom</span></code>，其位于<code class="docutils literal notranslate"><span class="pre">noname/ui/click/index.js</span></code>中，其大部分判定没啥好说的，最后无非就是执行了服务器的enter函数；对于后者，其事件为<code class="docutils literal notranslate"><span class="pre">ui.click.connectMenu</span></code>，其位于<code class="docutils literal notranslate"><span class="pre">noname/ui/create/menu/index.js</span></code>中，刚点击还只是一个设置UI，其和本地共用一个menu，均定义在<code class="docutils literal notranslate"><span class="pre">noname/ui/create/menu/pages/startMenu.js</span></code>中，只不过会根据是否处于联机而改变UI样式，在联机模式下其会将配置保存在<code class="docutils literal notranslate"><span class="pre">lib.configOL</span></code>，最后通过执行服务端的create完成房间的创建。</p>
+</section>
+<section id="id3">
+<h2>开房机制<a class="headerlink" href="#id3" title="Link to this heading">#</a></h2>
+<p>至此我们已经搞清楚了基本的UI交互，创建房间的起点就是执行服务端的create函数，而之前我们知道服务端所做的只是保存一些必要信息后，又将执行权返还给了用户，因此对于开房机制的探究，应该从函数<code class="docutils literal notranslate"><span class="pre">lib.message.client.createroom()</span></code>开始。</p>
+<p>我们可以看到其实际就是执行了本地的模式切换函数<code class="docutils literal notranslate"><span class="pre">game.switchMode(lib.configOL.mode)</span></code>，即从connect模式转化为联机设置中的模式。其只有两个核心步骤，第一执行对应模式在<code class="docutils literal notranslate"><span class="pre">mode</span></code>的js脚本文件，第二模仿proceed2来执行模式加载完后的回调。我们可以看到过程基本一致，最后还是得进行模式中的start函数，因此联机房间实际还是在mode对应的文件中。</p>
+<p>在模式的start中，进行一些初始化操作后，其基本都会根据是否为联机状态来调用<code class="docutils literal notranslate"><span class="pre">game.waitForPlayer</span></code>函数，这就是联机的等待房间，当然game只负责创建事件，具体的执行在<code class="docutils literal notranslate"><span class="pre">content.js</span></code>中。</p>
+<ul class="simple">
+<li><p>首先调用<code class="docutils literal notranslate"><span class="pre">game.createServer</span></code>在本地创建服务器，其就是在本地8080端口创建了一个ws服务器，并使用<code class="docutils literal notranslate"><span class="pre">lib.init.connection</span></code>监听连接事件，当然这玩意处于内网也只有本地可以连接到，先不管它；</p>
+<ul>
+<li><p>先看连接事件，首先将连接到的ws封装到Client对象中，并保存到<code class="docutils literal notranslate"><span class="pre">lib.node.clients</span></code>数组中，然后监听message和关闭事件，并向它发送开始的信息<code class="docutils literal notranslate"><span class="pre">client.send(&quot;opened&quot;)</span></code>；</p></li>
+<li><p>Client定义于<code class="docutils literal notranslate"><span class="pre">library/element/client.js</span></code>中，总共只有两个方法，close没啥好说的，send主要做的是让连接到ws服务器的对象发送指令数据，特殊地其会让函数参数改为指令<code class="docutils literal notranslate"><span class="pre">exec</span></code>；</p></li>
+<li><p>关闭事件没啥好说，看message事件，其接收一个json数组，第一个参数为<code class="docutils literal notranslate"><span class="pre">lib.message.server</span></code>下函数，后面为执行这个函数的参数，例如收到[“tempResult”, result]，就会执行<code class="docutils literal notranslate"><span class="pre">lib.message.server.tempResult(result)</span></code>。</p></li>
+</ul>
+</li>
+<li><p>接着就是给房主加个主的标记，并执行服务端的config来将本地的联机设置<code class="docutils literal notranslate"><span class="pre">lib.configOL</span></code>更新上；</p></li>
+<li><p>然后创建等待界面UI，把房主放进去，将服务器状态改成等待中，并通过<code class="docutils literal notranslate"><span class="pre">game.pause()</span></code>暂停游戏；</p>
+<ul>
+<li><p>我们把视线转化到开始游戏的点击事件，其位于<code class="docutils literal notranslate"><span class="pre">noname/ui/create/index.js</span></code>中，首先根据<code class="docutils literal notranslate"><span class="pre">game.online</span></code>(创建房间后会变成false)判断按钮为“开始游戏”还是“退出联机”，退出的就是执行<code class="docutils literal notranslate"><span class="pre">game.reload()</span></code>来重新加载游戏；</p></li>
+<li><p>而房主则会判断<code class="docutils literal notranslate"><span class="pre">game.connectPlayers</span></code>中空位个数，如果大等于需要人数减一(即没有两个人)，则报弹窗结束点击事件，达标的话则执行<code class="docutils literal notranslate"><span class="pre">game.resume()</span></code>恢复游戏。</p></li>
+</ul>
+</li>
+<li><p>最后就是，先修改各种状态变量(非等待状态、游戏中等)，然后移除各种无用UI，并向全体玩家通过<code class="docutils literal notranslate"><span class="pre">game.broadcast(&quot;gameStart&quot;)</span></code>广播游戏开始。</p></li>
+</ul>
+<p>实际上，房主以外的玩家自己也会执行mode下对应模式的文件，只不过要配合房主运行，具体让我们来看下部分内容。</p>
+</section>
+<section id="id4">
+<h2>进房机制<a class="headerlink" href="#id4" title="Link to this heading">#</a></h2>
+<p>当我们点击选项房间列表的某个房间时，由之前可知，实际就是房主执行了<code class="docutils literal notranslate"><span class="pre">lib.message.client.onconnection()</span></code>并把我们的wsid传入。让我们仔细探究一下其干了什么吧。</p>
+<ul class="simple">
+<li><p>其只有一句话，但包含两个步骤，首先创建一个NodeWS对象，并将其保存到<code class="docutils literal notranslate"><span class="pre">lib.wsOL</span></code>，索引为wsid，然后执行<code class="docutils literal notranslate"><span class="pre">lib.init.connection</span></code>函数；</p>
+<ul>
+<li><p>NodeWS对象定义于<code class="docutils literal notranslate"><span class="pre">noname/library/element/nodeWS.js</span></code>中，用于房主保存连接用户数据以跟本地房主的ws服务器进行相互响应，其相当于一个代理服务器；</p></li>
+<li><p>其核心方法为send，但实际就是房主自己通过与服务器连接的ws将数据发送到服务器。</p></li>
+</ul>
+</li>
+<li><p>而后来执行的连接函数，就是房主ws服务器监听的事件，此时在房主那边又得到了一个Client的身份，其保存最开始连接创建的NodeWS对象，因此执行<code class="docutils literal notranslate"><span class="pre">client.send(&quot;opened&quot;)</span></code>，就相当于房主通过服务器告诉连接用户执行本地的<code class="docutils literal notranslate"><span class="pre">lib.message.client.opened()</span></code>函数；</p></li>
+<li><p>在这个函数中，后半部分为重连，不用管，其核心就是向服务器发送init指令，但我们知道此时客户端已经属于某个房间有了owner，因此服务器只是转发，并附上相应的wsid。此时房主通过<code class="docutils literal notranslate"><span class="pre">lib.message.client.onmessage()</span></code>响应此事件，若不在连接的<code class="docutils literal notranslate"><span class="pre">lib.wsOL</span></code>中则不管，否则执行对应NodeWS对象的onmessage进行响应，其作用如之前所说就是分exec和非exec，来执行房主<code class="docutils literal notranslate"><span class="pre">lib.message.server</span></code>下的函数；</p></li>
+<li><p>所以最后就是执行了房主的<code class="docutils literal notranslate"><span class="pre">lib.message.server.init</span></code>，其包含一系列的判断过程。首先判断是否为被禁止进入的玩家；接着判断是否为连接上的断线玩家，是的话则以加入游戏的方式进行reinit；然后再进行版本号比较；接着判断是否为等待状态，非等待时给房主加上诸如移除旁观之类的按钮，并让玩家以旁观身份reinit(在客户端的reinit中会根据第5个参数来给自己加上observe的标签)；接着看房间是否已满员；最后玩家终于以等待的方式进来了，房主会在<code class="docutils literal notranslate"><span class="pre">game.connectPlayers</span></code>补上这个玩家，并让客户端执行自己的init；</p></li>
+<li><p>在客户端的init中，先进行了一系列的配置和UI生成，不用管它，关键是后面，房主以<code class="docutils literal notranslate"><span class="pre">game.switchMode</span></code>切换模式，而客户端以<code class="docutils literal notranslate"><span class="pre">game.loadModeAsync()</span></code>来切换模式，两者都要载入mode对应的js脚本，差别是不会进行模式、卡牌和角色之类的导入工作，而将其放到了回调函数中；</p></li>
+<li><p>在回调函数中，进行了数据库的初始化，以保证卡牌、角色之类的信息存在于本地，没有进行禁将之类的操作。而后续的事件中，其创建game事件但内容不是模式的start而是函数<code class="docutils literal notranslate"><span class="pre">lib.init.startOnline</span></code>，最后进入游戏循环，并向房主发送inited以更新初始化结束状态；</p></li>
+<li><p>客户端startOnline的内容十分简洁，就是等待服务端发送事件，我们在本地执行事件以后，将结果发送给房主的result函数进行处理，并再次进入等待状态。</p></li>
+<li><p>通过前面我们知道，房主在最后会广播一个gameStart表示游戏开始，因此此时客户端将执行<code class="docutils literal notranslate"><span class="pre">lib.message.client.gameStart()</span></code>函数，其就是一堆清除等待界面UI并创建游戏界面UI的过程。回到房主，其继续执行着模式的start，根据模式的不同广播的内容有所不同，我们以身份场为例；</p></li>
+<li><p>在身份确定以后，房主会发送一次广播，参数为一个函数和身份分配结果，由于接收到函数，客户端因此执行<code class="docutils literal notranslate"><span class="pre">lib.message.client.exec</span></code>把输入的函数执行，把身份信息存储在<code class="docutils literal notranslate"><span class="pre">lib.config.mode_config.identity.identity</span></code>和房主同步。然后房主执行<code class="docutils literal notranslate"><span class="pre">randomMapOL</span></code>，其同样广播了一个函数回调，总之就是一个根据信息把玩家画到客户端界面的函数，最后房主执行<code class="docutils literal notranslate"><span class="pre">chooseCharacterOL</span></code>进入选将界面；</p></li>
+<li><p>选将过程老长了，懒得解说了，总之就是需要全体玩家操作的时候就通过<code class="docutils literal notranslate"><span class="pre">game.broadcast()</span></code>进行广播，而只有部分玩家操作的时候，选出相应玩家的Client对象，通过<code class="docutils literal notranslate"><span class="pre">send</span></code>来发送指令。选将结束后，房主通过<code class="docutils literal notranslate"><span class="pre">game.syncState()</span></code>同步大量状态到客户端并触发gameStart事件，具体哪些状态可以参考<code class="docutils literal notranslate"><span class="pre">noname/library/element/player.js</span></code>的getState()函数；</p></li>
+<li><p>接下来是摸牌事件gameDraw，其通过<code class="docutils literal notranslate"><span class="pre">directgain()</span></code>函数获得牌，其同样是通过broadcast将房主获得牌的信息传给客户端，紧接着的是联机置换手牌从<code class="docutils literal notranslate"><span class="pre">game.replaceHandcards</span></code>到<code class="docutils literal notranslate"><span class="pre">replaceHandcardsOL</span></code>，也是一通麻烦的broadcast操作，懒得解说了；</p></li>
+<li><p>接下来进入回合循环gameloop，一通操作全在房主那里进行，直到通过trigger触发回合开始事件，在trigger中除了gameStart、gameDrawEnd这些特殊事件外，均在一个统一的框架下进行，中间有着一大堆的层层转包，但大部分事件其实客户端只需要观看即可。</p></li>
+</ul>
+<p>在联机模式下，游戏主要在房主那里进行，在没有事件响应的时候，客户端虽然也持有一个game对象，但大部分的状态更新，全程依靠房主运行时发出的<code class="docutils literal notranslate"><span class="pre">game.broadcast()</span></code>广播，其遍布于游戏的每一个角落，只能说这是游戏联机劣根的根源所在。</p>
+</section>
+<section id="id5">
+<h2>交互机制<a class="headerlink" href="#id5" title="Link to this heading">#</a></h2>
+<p>作为客户端，游戏的交互主要有两个方面，一个是进入回合的出牌操作阶段，另一个则是响应事件的时候(包括触发技能、响应其它玩家等)。我们先来看前者，其核心调用了玩家的<code class="docutils literal notranslate"><span class="pre">chooseToUse()</span></code>函数，通过转交以后，其位于<code class="docutils literal notranslate"><span class="pre">library/element/content.js</span></code>中执行；对于后者也是一样地在最后回到content中进行响应。</p>
+<p>在各种响应的操作中，有一个核心的三连判断，一判断是否为自己，二判断是否为联机，三则视其为ai，作为客户端主要响应的是二，此时房主将为此事件执行<code class="docutils literal notranslate"><span class="pre">event.send()</span></code>，而这就是交互的起点。</p>
+<ul class="simple">
+<li><p>首先其会调出节点存储的玩家对象，发送一个函数回调让客户端执行，然后执行<code class="docutils literal notranslate"><span class="pre">player.wait()</span></code>即给这名玩家思考进度条，并暂停房主的game；</p></li>
+<li><p>回调的过程在客户端执行，步骤比较简单就是获得房主的各种信息以后，将事件注入，并通过<code class="docutils literal notranslate"><span class="pre">game.resume()</span></code>恢复客服端的游戏进程；</p></li>
+<li><p>此时客户端的startOnline恢复运行，并执行房主给予的事件，得到结果以后通过<code class="docutils literal notranslate"><span class="pre">game.send</span></code>执行房主的result来处理结果，并再次进入等待状态；</p></li>
+<li><p>此时在房主的<code class="docutils literal notranslate"><span class="pre">lib.message.server.result</span></code>中，让这名玩家执行<code class="docutils literal notranslate"><span class="pre">unwait</span></code>表示玩家响应结束，并传入结果result；</p></li>
+<li><p>房主的处理过程虽然一大堆，但总共也就几步，先清除玩家等待之类的UI信息，接着将事件处理的结果放到自己的event中，最后恢复自己的游戏。</p></li>
+</ul>
+<p>可以看到联机的交互机制似乎比想象的简单很多，但代价是联机相关的代码十分的分散，导致维护和编写代码时会产生诸多的困难，因此我们看到联机下删除了许多的模式和内容，这是我们应该理解的，谁让无名杀的联机架构不太行呢！</p>
+</section>
+</section>
+
+        </article>
+      </div>
+      <footer>
+        
+        <div class="related-pages">
+          <a class="next-page" href="function.html">
+              <div class="page-info">
+                <div class="context">
+                  <span>Next</span>
+                </div>
+                <div class="title">联机函数</div>
+              </div>
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+            </a>
+          <a class="prev-page" href="server.html">
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+              <div class="page-info">
+                <div class="context">
+                  <span>Previous</span>
+                </div>
+                
+                <div class="title">服务器</div>
+                
+              </div>
+            </a>
+        </div>
+        <div class="bottom-of-page">
+          <div class="left-details">
+            <div class="copyright">
+                Copyright &#169; 2024, fuwuzhizi
+            </div>
+            Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
+            
+            <a href="https://github.com/pradyunsg/furo">Furo</a>
+            
+          </div>
+          <div class="right-details">
+            
+          </div>
+        </div>
+        
+      </footer>
+    </div>
+    <aside class="toc-drawer">
+      
+      
+      <div class="toc-sticky toc-scroll">
+        <div class="toc-title-container">
+          <span class="toc-title">
+            On this page
+          </span>
+        </div>
+        <div class="toc-tree-container">
+          <div class="toc-tree">
+            <ul>
+<li><a class="reference internal" href="#">客户端</a><ul>
+<li><a class="reference internal" href="#id2">联机大厅</a></li>
+<li><a class="reference internal" href="#id3">开房机制</a></li>
+<li><a class="reference internal" href="#id4">进房机制</a></li>
+<li><a class="reference internal" href="#id5">交互机制</a></li>
+</ul>
+</li>
+</ul>
+
+          </div>
+        </div>
+      </div>
+      
+      
+    </aside>
+  </div>
+</div><script src="../_static/documentation_options.js?v=7d86a446"></script>
+    <script src="../_static/doctools.js?v=888ff710"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/scripts/furo.js?v=32e29ea5"></script>
+    <script src="../_static/translations.js?v=beaddf03"></script>
+    </body>
+</html>

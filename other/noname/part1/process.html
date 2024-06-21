@@ -1,0 +1,315 @@
+<!doctype html>
+<html class="no-js" lang="zh-CN" data-content_root="../">
+  <head><meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1"/>
+    <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="index" title="索引" href="../genindex.html" /><link rel="search" title="搜索" href="../search.html" /><link rel="next" title="全局变量" href="global.html" /><link rel="prev" title="单机原理" href="offline-index.html" />
+
+    <!-- Generated with Sphinx 7.2.6 and Furo 2024.01.29 -->
+        <title>运行流程 - 无名杀开发 文档</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=135e06be" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/furo-extensions.css?v=36a5483c" />
+    
+    
+
+
+<style>
+  body {
+    --color-code-background: #f8f8f8;
+  --color-code-foreground: black;
+  
+  }
+  @media not print {
+    body[data-theme="dark"] {
+      --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+    }
+    @media (prefers-color-scheme: dark) {
+      body:not([data-theme="light"]) {
+        --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+      }
+    }
+  }
+</style></head>
+  <body>
+    
+    <script>
+      document.body.dataset.theme = localStorage.getItem("theme") || "auto";
+    </script>
+    
+
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+  <symbol id="svg-toc" viewBox="0 0 24 24">
+    <title>Contents</title>
+    <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 1024 1024">
+      <path d="M408 442h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8zm-8 204c0 4.4 3.6 8 8 8h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56zm504-486H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zm0 632H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zM115.4 518.9L271.7 642c5.8 4.6 14.4.5 14.4-6.9V388.9c0-7.4-8.5-11.5-14.4-6.9L115.4 505.1a8.74 8.74 0 0 0 0 13.8z"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-menu" viewBox="0 0 24 24">
+    <title>Menu</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-menu">
+      <line x1="3" y1="12" x2="21" y2="12"></line>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
+    <title>Expand</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-chevron-right">
+      <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+  </symbol>
+  <symbol id="svg-sun" viewBox="0 0 24 24">
+    <title>Light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="feather-sun">
+      <circle cx="12" cy="12" r="5"></circle>
+      <line x1="12" y1="1" x2="12" y2="3"></line>
+      <line x1="12" y1="21" x2="12" y2="23"></line>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+      <line x1="1" y1="12" x2="3" y2="12"></line>
+      <line x1="21" y1="12" x2="23" y2="12"></line>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon" viewBox="0 0 24 24">
+    <title>Dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-moon">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
+    </svg>
+  </symbol>
+  <symbol id="svg-sun-half" viewBox="0 0 24 24">
+    <title>Auto light/dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-shadow">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M13 12h5" />
+      <path d="M13 15h4" />
+      <path d="M13 18h1" />
+      <path d="M13 9h4" />
+      <path d="M13 6h1" />
+    </svg>
+  </symbol>
+</svg>
+
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation">
+<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc">
+<label class="overlay sidebar-overlay" for="__navigation">
+  <div class="visually-hidden">Hide navigation sidebar</div>
+</label>
+<label class="overlay toc-overlay" for="__toc">
+  <div class="visually-hidden">Hide table of contents sidebar</div>
+</label>
+
+
+
+<div class="page">
+  <header class="mobile-header">
+    <div class="header-left">
+      <label class="nav-overlay-icon" for="__navigation">
+        <div class="visually-hidden">Toggle site navigation sidebar</div>
+        <i class="icon"><svg><use href="#svg-menu"></use></svg></i>
+      </label>
+    </div>
+    <div class="header-center">
+      <a href="../index.html"><div class="brand">无名杀开发  文档</div></a>
+    </div>
+    <div class="header-right">
+      <div class="theme-toggle-container theme-toggle-header">
+        <button class="theme-toggle">
+          <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+          <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
+          <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+          <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+        </button>
+      </div>
+      <label class="toc-overlay-icon toc-header-icon" for="__toc">
+        <div class="visually-hidden">Toggle table of contents sidebar</div>
+        <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+      </label>
+    </div>
+  </header>
+  <aside class="sidebar-drawer">
+    <div class="sidebar-container">
+      
+      <div class="sidebar-sticky"><a class="sidebar-brand" href="../index.html">
+  
+  
+  <span class="sidebar-brand-text">无名杀开发  文档</span>
+  
+</a><form class="sidebar-search-container" method="get" action="../search.html" role="search">
+  <input class="sidebar-search" placeholder="搜索" name="q" aria-label="搜索">
+  <input type="hidden" name="check_keywords" value="yes">
+  <input type="hidden" name="area" value="default">
+</form>
+<div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
+  <ul>
+<li class="toctree-l1"><a class="reference internal" href="../quickstart.html">快速入门</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">游戏运行原理</span></p>
+<ul class="current">
+<li class="toctree-l1 current has-children"><a class="reference internal" href="offline-index.html">单机原理</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of 单机原理</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
+<li class="toctree-l2 current current-page"><a class="current reference internal" href="#">运行流程</a></li>
+<li class="toctree-l2"><a class="reference internal" href="global.html">全局变量</a></li>
+<li class="toctree-l2"><a class="reference internal" href="local.html">局部变量</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mode.html">游戏模式</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="online-index.html">联机原理</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle navigation of 联机原理</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="server.html">服务器</a></li>
+<li class="toctree-l2"><a class="reference internal" href="client.html">客户端</a></li>
+<li class="toctree-l2"><a class="reference internal" href="function.html">联机函数</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">扩展教程</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../extension.html">快速说明</a></li>
+</ul>
+
+</div>
+</div>
+
+      </div>
+      
+    </div>
+  </aside>
+  <div class="main">
+    <div class="content">
+      <div class="article-container">
+        <a href="#" class="back-to-top muted-link">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"></path>
+          </svg>
+          <span>Back to top</span>
+        </a>
+        <div class="content-icon-container">
+          
+<div class="theme-toggle-container theme-toggle-content">
+            <button class="theme-toggle">
+              <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+              <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
+              <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+              <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+            </button>
+          </div>
+          <label class="toc-overlay-icon toc-content-icon" for="__toc">
+            <div class="visually-hidden">Toggle table of contents sidebar</div>
+            <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+          </label>
+        </div>
+        <article role="main">
+          <section id="id1">
+<h1>运行流程<a class="headerlink" href="#id1" title="Link to this heading">#</a></h1>
+<p>我们以浏览器端的游戏来说明无名杀的运行流程，其它客户端本质上也是相同的。</p>
+<section id="id2">
+<h2>启动<a class="headerlink" href="#id2" title="Link to this heading">#</a></h2>
+<p>当我们点击<code class="docutils literal notranslate"><span class="pre">noname-server.exe</span></code>时，其会在本地的8089端口启动一个服务器，此时我们在浏览器打开游戏时，其先默认加载游戏目录下的<code class="docutils literal notranslate"><span class="pre">index.html</span></code>作为页面文件。</p>
+<p>页面<code class="docutils literal notranslate"><span class="pre">index.html</span></code>并没有什么实际的内容，只是用于加载一系列的js脚本用的。其包括引入报错函数、根据不同客户端新增全局函数等，我们无需关心这些内容，而在外置脚本上主要执行game文件夹下的<code class="docutils literal notranslate"><span class="pre">update.js</span></code>、<code class="docutils literal notranslate"><span class="pre">config.js</span></code>、<code class="docutils literal notranslate"><span class="pre">package.js</span></code>、<code class="docutils literal notranslate"><span class="pre">game.js</span></code>这四个文件，前三个用于存放一系列的配置表，而<code class="docutils literal notranslate"><span class="pre">game.js</span></code>实际上就是一系列的检测工作，我们同样无需关心，只需知道在最后会运行<code class="docutils literal notranslate"><span class="pre">entry.js</span></code>。其同样套了一堆我们无需了解的东西，其关键步骤是调用了<code class="docutils literal notranslate"><span class="pre">boot()</span></code>函数，其来自<code class="docutils literal notranslate"><span class="pre">noname/init/index.js</span></code>，而这正是我们游戏的起始点。</p>
+<p>在此处一系列与游戏相关的变量将会被初始化，后面我们将会对其进行详细的解析。我们需要知道，无名杀使用网页运行，因此其不具备本地读写的能力，而我们的设置之所以可以保留，是因为使用了localStorage和IndexedDB技术，将数据存储在了浏览器上，具体可以查看<code class="docutils literal notranslate"><span class="pre">loadConfig()</span></code>函数的内容。中间一大坨都不用管，最后调用了<code class="docutils literal notranslate"><span class="pre">onload()</span></code>函数，其来自同目录下的<code class="docutils literal notranslate"><span class="pre">onload.js</span></code>，此处才真正开始渲染页面，并设置监听事件，过程十分机械没什么好说的。当我们点击按钮时，会调用<code class="docutils literal notranslate"><span class="pre">lib.init.js(lib.assetURL</span> <span class="pre">+</span> <span class="pre">&quot;mode&quot;,</span> <span class="pre">lib.config.mode,</span> <span class="pre">proceed);</span></code>这句代码。</p>
+<p>它会自适应地根据环境来调整文件路径，我们的环境下在选择身份场时会返回<code class="docutils literal notranslate"><span class="pre">mode/identity.js</span></code>文件，将其置入html并运行，整个文件只执行了一个game.import，传入了大量参数，并返回一个特大的object，最后再执行proceed函数。也就是说游戏运行的过程以一个object的形式进行表现，proceed位于之前的<code class="docutils literal notranslate"><span class="pre">onload()</span></code>中，并嵌套调用proceed2，传递的运行过程被存储在<code class="docutils literal notranslate"><span class="pre">lib.imported.mode</span></code>中。别晕，启动已经结束了，接下来就是游戏的过程了。</p>
+</section>
+<section id="id3">
+<h2>过程<a class="headerlink" href="#id3" title="Link to this heading">#</a></h2>
+<p>proceed2用于处理所有模式的游戏过程，而游戏的具体过程则存储在game.import导入时的巨大object中，我们先来说明一下整体的过程。首先它会一次性把所有的角色包和卡牌包载入，然后就是一通转移，将巨大的game.import中诸如game、ai、ui等元素覆盖到本地中，接着就是去除没使用的角色和卡牌，十分繁琐没啥好看的，但有一点值得注意，就是其会根据你是否为联机模式<code class="docutils literal notranslate"><span class="pre">connect.js</span></code>，修改<code class="docutils literal notranslate"><span class="pre">_status.connectMode</span></code>变量，而这正是在各种代码编写时区分联机模式的重要依据，也为无名杀拉跨的联机模式埋下了祸根。然后清除lib.imported之类的缓存数据，如果非联机模式，则将lib.extensions中的扩展导入到game中(主要为角色和卡牌)，准备工作结束。</p>
+<p>接下来进入游戏的生命周期，<code class="docutils literal notranslate"><span class="pre">startBefore</span></code>(启动前准备)-&gt;<code class="docutils literal notranslate"><span class="pre">ui.create.arena()</span></code>(绘制UI界面)-&gt;<code class="docutils literal notranslate"><span class="pre">loop</span></code>(游戏运行循环)-&gt;<code class="docutils literal notranslate"><span class="pre">start</span></code>(游戏启动)。其中只有startBefore和start，是由game.import传入的，并保存在lib.init中。在整个游戏的运行过程中，主要采用event机制，而game.loop实际就是一个不断接受event并处理的过程。另外，start是作为一个事件在loop被执行的。</p>
+</section>
+<section id="id4">
+<h2>事件<a class="headerlink" href="#id4" title="Link to this heading">#</a></h2>
+<p>在无名杀中，event机制贯穿整个游戏，其定义在<code class="docutils literal notranslate"><span class="pre">noname/library/element/gameEvent.js</span></code>中，其在全局中只有一个，在<code class="docutils literal notranslate"><span class="pre">boot()</span></code>中通过<code class="docutils literal notranslate"><span class="pre">lib.element.GameEvent.initialGameEvent();</span></code>创建，并保存在<code class="docutils literal notranslate"><span class="pre">_status.event</span></code>中。而在proceed2中，我们创建了第一个事件<code class="docutils literal notranslate"><span class="pre">start</span></code>表示游戏开始，并在loop中进行执行。除start以外，所有的事件均要通过<code class="docutils literal notranslate"><span class="pre">event.trigger()</span></code>来触发。</p>
+<p>在<code class="docutils literal notranslate"><span class="pre">trigger()</span></code>中，一堆前置的内容没啥好看的，好戏主要集中在后面的<code class="docutils literal notranslate"><span class="pre">do</span> <span class="pre">while()</span></code>中，其会从第一个玩家开始依次遍历技能中的trigger相关的技能，并执行相应content的内容，这就是<strong>触发技</strong>的由来。</p>
+<p>事件系列中的第一个是<code class="docutils literal notranslate"><span class="pre">gameStart</span></code>，在start事件的执行函数中被触发，其根据模式的不同而有所不同。而其它的事件则是在两个函数中被触发，其分别是<code class="docutils literal notranslate"><span class="pre">game.gameDraw()</span></code>和<code class="docutils literal notranslate"><span class="pre">game.phaseLoop()</span></code>(不同模式的循环有所不同)。运行过程就是创建一个相应的事件，并将<code class="docutils literal notranslate"><span class="pre">library/element/content.js</span></code>中相应的函数扔进去作为执行函数，这些事件通过<code class="docutils literal notranslate"><span class="pre">game.createEvent</span></code>触发并不会执行技能相应的事件，只是单纯的执行函数。gameDraw表示玩家初始摸牌并绘制的函数，里面也包含一些远古代码，我们就别管了，总之不重要。在phaseLoop中，第一步是设置座位号(例如在身份场中，从主公开始逆时针由1加到8)，第二步的for循环与乱斗相关以后再讲，后面则是执行第一个玩家的回合，第三步则是寻找下一个玩家并回到第二步，以此达成一个回合一个回合地无限轮流下去。</p>
+<p>执行回合<code class="docutils literal notranslate"><span class="pre">player.phase()</span></code>定义在<code class="docutils literal notranslate"><span class="pre">library/element/player.js</span></code>，同样的先是创建一个phase事件，然后转接执行，后面的一段开始定义roundStart，即不存在一轮开始，则在一个玩家回合开始是定义一轮从哪里开始(不要问我为什么这样，代码就是这样)。接着在<code class="docutils literal notranslate"><span class="pre">content.js</span></code>中看回合的具体过程，先触发的事件是<code class="docutils literal notranslate"><span class="pre">phaseBefore</span></code>(具体原因看官方源码解释)，接着就是触发事件<code class="docutils literal notranslate"><span class="pre">roundStart</span></code>，中间一坨都无所谓，总之看到当前的玩家等于我们之前的<code class="docutils literal notranslate"><span class="pre">_status.roundStart</span></code>就开始执行一轮的相关内容。然后又是一堆无所谓的东西，并接连触发两个事件<code class="docutils literal notranslate"><span class="pre">phaseBeforeStart</span></code>和<code class="docutils literal notranslate"><span class="pre">phaseBeforeEnd</span></code>，至此回合前的事件就结束了。</p>
+<p>接下来进行翻面检测，如果玩家处于翻面状态，则取消当前的回合事件并翻回来。如果没翻面的话，游戏就会报一个日志<code class="docutils literal notranslate"><span class="pre">XX的的回合开始</span></code>，并接连触发事件<code class="docutils literal notranslate"><span class="pre">phaseBeginStart</span></code>和<code class="docutils literal notranslate"><span class="pre">phaseBegin</span></code>，这样回合终于开始了。接下来使用了goto这种恶心的玩意，别管它，总之就是接连触发了函数<code class="docutils literal notranslate"><span class="pre">phaseZhunbei</span></code>、<code class="docutils literal notranslate"><span class="pre">phaseJudge</span></code>、<code class="docutils literal notranslate"><span class="pre">phaseDraw</span></code>、<code class="docutils literal notranslate"><span class="pre">phaseUse</span></code>、<code class="docutils literal notranslate"><span class="pre">phaseDiscard</span></code>、<code class="docutils literal notranslate"><span class="pre">phaseJieshu</span></code>，也就是我们说的准备、判定、摸牌、出牌、弃牌、结束六个阶段，当然每个阶段之间还插入了一个<code class="docutils literal notranslate"><span class="pre">phaseChange</span></code>事件。当各阶段结束以后，就相继触发<code class="docutils literal notranslate"><span class="pre">phaseEnd</span></code>和<code class="docutils literal notranslate"><span class="pre">phaseAfter</span></code>，然后回合就结束了。</p>
+<p>剩下的事件就没什么好讲的了，盯住<code class="docutils literal notranslate"><span class="pre">event.trigger()</span></code>即可，比如在出牌阶段中，就有着<code class="docutils literal notranslate"><span class="pre">phaseUseBefore</span></code>、<code class="docutils literal notranslate"><span class="pre">phaseUseBegin</span></code>、<code class="docutils literal notranslate"><span class="pre">phaseUseEnd</span></code>和<code class="docutils literal notranslate"><span class="pre">phaseUseAfter</span></code>四个事件，而诸如<code class="docutils literal notranslate"><span class="pre">shaXX</span></code>之类杀相关事件则是写作卡牌杀的代码中，同样通过<code class="docutils literal notranslate"><span class="pre">event.trigger()</span></code>进行触发。</p>
+</section>
+</section>
+
+        </article>
+      </div>
+      <footer>
+        
+        <div class="related-pages">
+          <a class="next-page" href="global.html">
+              <div class="page-info">
+                <div class="context">
+                  <span>Next</span>
+                </div>
+                <div class="title">全局变量</div>
+              </div>
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+            </a>
+          <a class="prev-page" href="offline-index.html">
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+              <div class="page-info">
+                <div class="context">
+                  <span>Previous</span>
+                </div>
+                
+                <div class="title">单机原理</div>
+                
+              </div>
+            </a>
+        </div>
+        <div class="bottom-of-page">
+          <div class="left-details">
+            <div class="copyright">
+                Copyright &#169; 2024, fuwuzhizi
+            </div>
+            Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
+            
+            <a href="https://github.com/pradyunsg/furo">Furo</a>
+            
+          </div>
+          <div class="right-details">
+            
+          </div>
+        </div>
+        
+      </footer>
+    </div>
+    <aside class="toc-drawer">
+      
+      
+      <div class="toc-sticky toc-scroll">
+        <div class="toc-title-container">
+          <span class="toc-title">
+            On this page
+          </span>
+        </div>
+        <div class="toc-tree-container">
+          <div class="toc-tree">
+            <ul>
+<li><a class="reference internal" href="#">运行流程</a><ul>
+<li><a class="reference internal" href="#id2">启动</a></li>
+<li><a class="reference internal" href="#id3">过程</a></li>
+<li><a class="reference internal" href="#id4">事件</a></li>
+</ul>
+</li>
+</ul>
+
+          </div>
+        </div>
+      </div>
+      
+      
+    </aside>
+  </div>
+</div><script src="../_static/documentation_options.js?v=7d86a446"></script>
+    <script src="../_static/doctools.js?v=888ff710"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/scripts/furo.js?v=32e29ea5"></script>
+    <script src="../_static/translations.js?v=beaddf03"></script>
+    </body>
+</html>

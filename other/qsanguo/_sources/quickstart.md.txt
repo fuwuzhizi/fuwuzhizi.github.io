@@ -1,0 +1,3 @@
+# 快速入门
+
+太阳神三国杀和新月杀都属于原生系应用，因此安装使用十分简单，找到一个官方途径，直接下载运行即可。太阳神三国杀的主要发布途径是[百度贴吧](https://tieba.baidu.com/f?kw=%E5%A4%AA%E9%98%B3%E7%A5%9E%E4%B8%89%E5%9B%BD%E6%9D%80&ie=utf-8)，新月杀的主要发布途径是[GitHub](https://github.com/Qsgs-Fans/FreeKill/releases)，另外新月杀需要连入官方服务器来同步所有武将包和卡牌包，具体方法看官方说明。

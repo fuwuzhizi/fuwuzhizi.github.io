@@ -1,0 +1,46 @@
+# 运行流程
+
+理解原理的第一步是来梳理程序的运行流程，平台为Window10.64bit+VS2022。
+
+## 启动
+
+对于C++ Qt的程序，主流程集中于`src/main.cpp`的`int main(int argc, char *argv[])`函数中。首先的参数判定并没有什么用，最后还是得执行函数`new QApplication`来创建Qt程序；下一句`addLibraryPath`添加插件路径，但基本没有哪个版本有用到过；再下一句是读取文字信息，在配置多语言适配的情况下才会有qm文件，但感觉没啥必要。
+
+- 创建Engine对象Sanguosha(位于`src/core/engine.cpp`)，即三国杀的核心部分；
+- 调用Config对象的init方法来初始化各项设置，其在定义时就已经被创建了(代码位于`src/core/settings.cpp`和数据位于`config.ini`)。后部分是根据设置内容来改变程序字体，并加载游戏相关的禁表；
+- 接下来打开qss中的文件，即界面样式文件，并初始化音频库(神杀使用fmod)；
+- 最后创建窗口对象main_window(位于`src/dialog/mainwindow.cpp`)，并将其设为Sanguosha的父对象。
+
+由上面可知，神杀的核心应该全都在Sanguosha对象(Engine类的实例化)中，因此我们来好好研究一下。
+
+## Engine对象
+
+我们先来看构造方法`Engine::Engine(bool isManualMode)`，默认情况下`isManualMode=false`表示非教程模式。
+
+- 第一步是初始化lua环境，并加载脚本`lua/config.lua`，其相当于游戏lua环境的初始设置，然后读取转化表等配置到程序环境中，无需关注它(以后我们把lua执行的地方称为“lua环境”、把C++ Qt执行的地方称为“程序环境”)；
+- 第二步是读取lua环境中的`config.package_names`，即各种卡牌和武将包的名称，并通过addPackage添加到Sanguosha中。包的主类为Package(位于`src/package/package.cpp`中)，各类其它的包均是它的子类(位于`src/package/`下)。在包读取的函数中，前一步转化表等配置会进一步从包中添加，然后就是各种与包相关的技能和卡牌的添加，其中卡牌除了放到程序环境中，还会放到程序环境的lua相关变量中，在技能方面分为Skill和General两类，一类是隐性技能存在于装备卡牌全局等情况中，另一类就是角色拥有的显性技能；
+- 第三步是小场景和模式的加载，它们对应游戏中的最后两个选项。小型场景定义于`etc/customScenes/`下和`src/scenario/miniscenario.cpp`中，可以通过配置来简单实现，而剧情模式定义于`src/scenario/`下，拥有自己的代码规则，每个模式都是SceneRule的子类，并同属于游戏大框架的规则类GameRule的子类；
+- 第四步是加载脚本`lua/sanguosha.lua`，这个脚本做的事太多了，其顺带还会把同目录的`utilities.lua`和`sgs_ex.lua`一起加载；
+- 最后一步是各种具体模式的翻译和技能音频的初始化，没啥好看的。
+
+为了看我们如果进入到具体的游戏模式，还是稍微来看一下主菜单UI的内容吧。
+
+## MainWindow对象
+
+我们在文件中随时可以看到`tr(字符串)`，它实际上就是用于多语言翻译的，在编程阶段位于`builds/sanguosha.ts`中，编译以后生成相应的qm文件，因此在运行阶段位于`sanguosha.qm`中，其在之前的main函数中已经被读入过了。
+
+在MainWindow的构造函数中，大部分为弹窗对象的建立，其中的StartScene就是我们的初始菜单界面，后面紧跟的几个`ui->actionXXX`就是我们主界面上方的几个菜单选项，而这些控件定义于Qt的界面文件`src/dialog/mainwindow.ui`中。而中间几个按钮实际就是从上面菜单拿下来的，并让它们拥有相同的触发事件。
+
+游戏整体采用C/S架构，其中的启动服务器是我们开始游戏的方式，因此`on_actionStart_Server_triggered`函数对应点击事件。其会创建一个ServerDialog的窗口，即我们点入的配置窗口。接着根据accept_type的三种状态执行不同代码，0为“取消”则函数结束，-1为单机启动是我们的核心，1为启动服务器懒得搭理。
+
+反正无论如何只要不是取消，我们都会创建一个Server对象(定义于`src/server/server.cpp`)并监听设置`Config.ServerPort`的端口，服务器的底层API用的是Qt提供的Socket通信(主要使用TCP和UDP两类协议)，被封装于`src/util/nativesocket.cpp`中。
+
+我们考察单机启动，此时设置HostAddress为本地ip，并通过`startConnection`连入。在连入中，我们会创建一个Client对象(定义于`src/client/client.cpp`)来表示我们自己的客户端，在构造函数中有一堆指令设置先不管，再最后filename默认为空，此时自己定义一个socket来连接服务器，recorder供录像使用，最后进行连接。
+
+然后我们会执行`checkVersion()`进行所谓的版本检测，实际用途之一确实是比对服务端和客户端的版本是否相同，失败则进行信息反馈，成功则客户端执行`signup()`在服务器注册账号，并通过`enterRoom()`进入房间。进入房间后有一堆UI创建的代码，而关键的代码是`gotoScene(room_scene)`表示我们进入房间场景(其定义于`src/ui/roomscene.cpp`)。
+
+在又是一堆的UI建立代码中，我们只关注开始游戏的按钮，即`start_game`，其对应的事件为`fillRobots`，即加满机器人，而我们看到它就是通知服务器加人而已。实际上，游戏开始的事件在服务器中，当服务器检测到人已经满的时候，就会自动开始游戏，关于C/S架构更详细的交互过程，我们后面会更加详细地讨论，在UI方面就到此为止了。
+
+## Config对象
+
+游戏的Config为QSettings的子类，以键值方式存储设置内容，并将设置数据保存在游戏根目录的`config.ini`中，总体看来没什么好玩的，只是它属于游戏运行中一个重要的变量，所以就稍微提及一下。
